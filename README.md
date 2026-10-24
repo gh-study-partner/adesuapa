@@ -1,4 +1,4 @@
-# Study Partner
+# StudyLee
 
 A static front-end (`index.html`) plus one serverless function (`server.js`). No build step — deploy as-is.
 
@@ -17,7 +17,7 @@ package.json
 
 1. Upload the files to a **private** GitHub repository (or drag the folder into https://vercel.com/new).
 2. In Vercel open **Storage** and connect an **Upstash Redis / KV** database to the project. Without it every phone keeps its own private copy of everything.
-3. In **Settings → Environment Variables** add `ADMIN_USER`, `ADMIN_PASS` and `AUTH_SECRET` (see `.env.example`). Choose your own long, unique values.
+3. In **Settings → Environment Variables** add `ADMIN_USER`, `ADMIN_PASS` (or `ADMIN_USERNAME`, `ADMIN_PASSWORD` — both spellings work) and `AUTH_SECRET` (see `.env.example`). Choose your own long, unique values.
 4. **Redeploy**, then open `https://YOUR-SITE.vercel.app/setup` — it shows ✅ or ❌ in plain words.
 
 ## What students see

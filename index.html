@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Study Partner</title>
+<title>StudyLee</title>
 <script src="https://js.paystack.co/v1/inline.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -279,7 +279,7 @@ button.qr-item{background:none;border:0;border-bottom:1px solid var(--border);wi
 .res-thumb{width:44px;height:44px;object-fit:cover;border-radius:8px;}
 </style>
 <style>
-/* Study Partner — search engine UI (page + study dock). Reuses the app's theme variables. */
+/* StudyLee — search engine UI (page + study dock). Reuses the app's theme variables. */
 .sx{position:relative;}
 .sx-bar-wrap{position:relative;}
 .sx-sug{position:absolute;left:0;right:0;top:100%;margin-top:6px;z-index:30;background:var(--bg);border:1px solid var(--border);border-radius:18px;box-shadow:0 16px 40px rgba(20,8,50,.22);overflow:hidden;}
@@ -400,7 +400,7 @@ window.SP_DAYS={
 };
 </script>
 <style>
-/* Study Partner — styles for the newer features (reels, courses, notebook, PASCO answers, full-screen admin). */
+/* StudyLee — styles for the newer features (reels, courses, notebook, PASCO answers, full-screen admin). */
 
 /* ---------- sign-up / log-in: one form, with a link to the other ---------- */
 .auth-tabs{display:none!important;}
@@ -591,7 +591,7 @@ html.rl-lock,html.rl-lock body{overflow:hidden!important;}
 .pq-edit{background:rgba(168,85,247,.08);border-radius:12px;padding:10px;margin-top:8px;} .pq-edit textarea{width:100%;}
 </style>
 <style id="ui2css">
-/* ===================== Study Partner — new interface (bottom bar, Me, account, library desk, pasco, quizzes) ===================== */
+/* ===================== StudyLee — new interface (bottom bar, Me, account, library desk, pasco, quizzes) ===================== */
 :root{--bnh:calc(66px + env(safe-area-inset-bottom,0px));}
 @media (min-width:721px){:root{--bnh:calc(86px + env(safe-area-inset-bottom,0px));}}
 .spi{display:block;flex:none;}
@@ -631,6 +631,14 @@ body.gate #m-auth [onclick="closeModal('m-auth')"]{display:none;}
 .pbig{padding:34px 12px;} .pbig b{font-size:18px;}
 .act-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:18px 0 4px;}
 #dkMore{margin-top:22px;} .dk-title{display:inline-flex;align-items:center;gap:7px;}
+/* My Desk, simplified: no rules banner, no filter chips, no clock, no duplicate course list; sound and voice tucked under one button */
+.dk-rules,.dk-seg,.dk-clock,#dkMore #mcWrap{display:none !important;}
+.dk-bar{margin-bottom:12px;}
+.dk-course .dk-actions .btn{min-height:46px;font-size:15px;}
+#dkMore{margin-top:18px;} #dkMore #ssWrap>h2{font-size:18px;margin:0 0 8px;}
+#ssWrap .voicebox,#ssWrap .amb-head,#ssWrap .amb{display:none;} #ssWrap.opt .voicebox,#ssWrap.opt .amb-head,#ssWrap.opt .amb{display:flex;}
+.dk-opt{display:block;width:100%;margin-top:12px;background:none;border:1px dashed var(--border);color:var(--muted);border-radius:12px;padding:10px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;}
+
 /* Course page (Reels / Courses / Friends) */
 .fx-tabs{position:sticky;top:0;z-index:30;background:var(--bg);margin:0 -16px 14px;padding:calc(6px + env(safe-area-inset-top,0px)) 16px 0;gap:0;justify-content:center;border-bottom:1px solid var(--border);flex-wrap:nowrap;}
 .fx-tabs button{flex:0 1 auto;min-width:0;background:none;border:0;border-bottom:3px solid transparent;border-radius:0;color:var(--muted);padding:12px 18px;font-size:16px;font-weight:800;}
@@ -697,7 +705,7 @@ html.rl-lock body.rlbar #bnav,html.rl-lock #bnav{background:#000;border-color:#2
 <header>
   <div class="logo">
     <span class="logo-mark"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M12 3 2 8l10 5 10-5-10-5Z" fill="#fff"/><path d="M6 11.2V16c0 1.4 2.7 3 6 3s6-1.6 6-3v-4.8" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><path d="M21 8v5.5" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span>
-    <span class="logo-text">Study<b>Partner</b></span>
+    <span class="logo-text">Study<b>Lee</b></span>
   </div>
   <nav id="nav">
     <button data-v="home" class="active">Home</button>
@@ -753,9 +761,9 @@ html.rl-lock body.rlbar #bnav,html.rl-lock #bnav{background:#000;border-color:#2
     <div id="mcWrap"><h2>My courses <span class="pill" id="cCount"></span></h2>
     <div class="cgrid" id="cgrid"></div></div>
     <div id="courseOpen" style="margin-top:16px"></div>
-    <div id="ssWrap"><h2>Study session</h2>
+    <div id="ssWrap"><h2>Study timer</h2>
     <div class="card timer">
-      <div class="seg"><button id="tmS" class="on" onclick="setMode('sw')">Continuous Stopwatch</button><button id="tmP" onclick="setMode('pomo')">25-Min Pomodoro</button></div>
+      <div class="seg"><button id="tmS" class="on" onclick="setMode('sw')">Stopwatch</button><button id="tmP" onclick="setMode('pomo')">25-minute focus</button></div>
       <div class="clock" id="clock">00:00</div>
       <div class="tstat" id="tstat">Ready to Start Study Session</div>
       <div class="voicebox"><span>🔔</span><div><b>Female Voice Alert Active:</b><br>When you click <b>Start</b>, a lady's voice instructs:<br><i>"Please turn off Do Not Disturb mode or silence notifications for deep focus!"</i></div></div>
@@ -780,7 +788,7 @@ html.rl-lock body.rlbar #bnav,html.rl-lock #bnav{background:#000;border-color:#2
   <!-- SEARCH -->
   <section id="v-search" class="hide srch">
     <h1>Search</h1>
-    <p class="sub">Ask anything. Study Partner searches the web, reads the best pages and answers right here.</p>
+    <p class="sub">Ask anything. StudyLee searches the web, reads the best pages and answers right here.</p>
     <div id="spPage"></div>
   </section>
 
@@ -816,7 +824,7 @@ html.rl-lock body.rlbar #bnav,html.rl-lock #bnav{background:#000;border-color:#2
     <button class="btn" onclick="openModal('newAd')">Run your business ad now</button>
   </div>
 
-  <footer>Study Partner — built for students, by students.</footer>
+  <footer>StudyLee — built for students, by students.</footer>
 </main>
 
 <nav id="bnav" aria-label="Main navigation">
@@ -899,7 +907,7 @@ Answer: A"></textarea>
   <div class="field"><label>Pricing</label><div id="plans"></div></div>
   <div class="field" style="display:flex;gap:8px;align-items:center;margin-top:12px">
     <input type="checkbox" id="agree" class="rchk" onchange="$('payBtn').disabled=!this.checked">
-    <label style="font-size:12px;cursor:pointer" for="agree">I agree to Study Partner's ad terms</label>
+    <label style="font-size:12px;cursor:pointer" for="agree">I agree to StudyLee's ad terms</label>
   </div>
   <button class="btn" id="payBtn" style="width:100%" disabled onclick="payAd()">Pay Now</button>
   <p style="font-size:11px;color:var(--muted)">Payment is collected securely by Paystack. Your ad goes live once admin confirms and approves it.</p>
@@ -940,7 +948,7 @@ Answer: A"></textarea>
     </div>
   </div>
   <div id="adm-search" class="admp hide">
-    <div class="card"><b>Study Partner's own search engine</b>
+    <div class="card"><b>StudyLee's own search engine</b>
       <p style="font-size:12.5px;color:var(--muted);line-height:1.55">No API key needed. It asks Bing, DuckDuckGo, Mojeek, Marginalia and Wikipedia at once, reads the best pages, and answers from them. Every day (4:00 UTC) it also learns today's trending topics, headlines and six syllabus topics.</p>
       <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" onclick="runEngineCheck()">Test the engine</button><button class="btn ghost" id="learnBtn" onclick="learnNow()">Learn now</button></div>
       <div id="engOut" style="margin-top:10px"></div>
@@ -998,7 +1006,7 @@ Answer: A"></textarea>
 </div></div>
 
 <script>
-/* Study Partner — one set of real (SVG) icons used across the new interface. SPI.i(name,size,filled) returns an <svg> string. */
+/* StudyLee — one set of real (SVG) icons used across the new interface. SPI.i(name,size,filled) returns an <svg> string. */
 window.SPI=(function(){
   const P={
     home:'<path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/>',
@@ -1040,7 +1048,7 @@ window.SPI=(function(){
 })();
 </script>
 <script>
-/* Study Partner — built-in PowerPoint (.pptx) slide renderer.
+/* StudyLee — built-in PowerPoint (.pptx) slide renderer.
    Reads the file with JSZip and draws each slide as HTML: slide size, theme colours/fonts, backgrounds,
    layouts + master inheritance, text (levels, bullets, numbering, autofit), pictures (with crop), tables,
    groups, common shapes/lines. Charts, SmartArt and videos are shown as labelled placeholders. */
@@ -1487,7 +1495,7 @@ return {render};
 
 </script>
 <script>
-/* Study Partner — readers for old binary Office files (.doc Word 97-2003, .ppt PowerPoint 97-2003).
+/* StudyLee — readers for old binary Office files (.doc Word 97-2003, .ppt PowerPoint 97-2003).
    Pure JavaScript, no downloads. They pull out the TEXT so old files open inside the site. */
 (function(root){
 'use strict';
@@ -1606,7 +1614,7 @@ async function detectApi(){
       const r=await fetch('/api?a=health',{signal:c.signal,cache:'no-store'}); clearTimeout(t);
       const j=await r.json().catch(()=>null);
       if(j&&j.ok){ API=!!j.ready; apiState=API?'yes':'no'; apiMissing=false; try{ localStorage.setItem('sp_shared',API?'1':'0'); }catch(e){} return; }
-      API=false; apiState='no'; apiMissing=true; return; // something answered, but it is not Study Partner's backend: the api folder did not deploy
+      API=false; apiState='no'; apiMissing=true; return; // something answered, but it is not StudyLee's backend: the api folder did not deploy
     }catch(e){ await new Promise(r=>setTimeout(r,500*(attempt+1))); }
   }
   if(!wasShared){ API=false; apiState='unknown'; }
@@ -1720,7 +1728,7 @@ function renderAccount(){
   const p=user.profile||{};
   $('acAvatar').innerHTML=avatarHTML(user,72);
   $('acName').textContent=user.name;
-  $('acSub').textContent=[p.school,p.level].filter(Boolean).join(' · ') || 'Study Partner student';
+  $('acSub').textContent=[p.school,p.level].filter(Boolean).join(' · ') || 'StudyLee student';
   const mins=Math.round((store('sp_sessions')||[]).reduce((a,x)=>a+x.s,0)/60);
   const acts=Object.values(user.timetable||{}).reduce((a,r)=>a+r.length,0);
   const certs=Object.keys(progress).filter(k=>k.startsWith(user.name+'|')&&progress[k].at).length;
@@ -1749,7 +1757,7 @@ function renderSettings(){
        <div style="display:flex;gap:8px;flex-wrap:wrap"><label class="btn" style="cursor:pointer">📷 Upload photo<input type="file" accept="image/*" hidden onchange="acPhoto(this.files[0])"></label><button class="btn ghost" onclick="acPhotoClear()">Remove</button></div></div></div>
    <div class="card" style="margin-top:12px"><b>Your details</b><div style="margin-top:8px">
      ${f('acFName','Full name',user.name,'Your name')}${f('acSchool','School / institution',p.school,'e.g. University of Cape Coast')}${f('acProg','Programme',p.prog,'e.g. BSc. Information Technology')}${f('acLevel','Level / year',p.level,'e.g. Level 200')}${f('acPhone','Phone / WhatsApp (optional)',p.phone,'0201234567','tel')}</div></div>
-   <div class="card" style="margin-top:12px"><b>Display</b><p style="font-size:12px;color:var(--muted);margin:2px 0 0">Choose how Study Partner looks for you.</p>
+   <div class="card" style="margin-top:12px"><b>Display</b><p style="font-size:12px;color:var(--muted);margin:2px 0 0">Choose how StudyLee looks for you.</p>
      <div class="chips" id="thChips">${['auto','light','dark'].map(t=>`<button class="chip ${pendTheme===t?'on':''}" data-t="${t}" onclick="pickTheme('${t}')">${{auto:'🌗 Auto',light:'☀️ White',dark:'🌙 Night'}[t]}</button>`).join('')}</div>
      <p style="font-size:11px;color:var(--muted);margin:8px 0 0">Auto = white by day, night mode from 6pm to 6am.</p></div>
    <div class="card" style="margin-top:12px"><b>Change password</b><div style="margin-top:8px">${f('acCurPass','Current password','','','password')}${f('acNewPass','New password (min 4 characters)','','','password')}</div></div>
@@ -1803,7 +1811,7 @@ function openAuth(mode){
 }
 $('m-auth').addEventListener('keydown',e=>{ if(e.key==='Enter') doAuth(); });
 async function authSignup(name,pass){
-  if(apiState==='unknown') throw new Error("Can't reach Study Partner's server right now. Check your internet connection and try again in a moment.");
+  if(apiState==='unknown') throw new Error("Can't reach StudyLee's server right now. Check your internet connection and try again in a moment.");
   if(name.length<2) throw new Error('Name must be at least 2 characters.');
   if(pass.length<6) throw new Error('Password must be at least 6 characters.');
   if(API) return startSession(await api('signup',{name,pass}));
@@ -1814,7 +1822,7 @@ async function authSignup(name,pass){
   return startSession({user:acc,token:null});
 }
 async function authLogin(name,pass){
-  if(apiState==='unknown') throw new Error("Can't reach Study Partner's server right now. Check your internet connection and try again in a moment.");
+  if(apiState==='unknown') throw new Error("Can't reach StudyLee's server right now. Check your internet connection and try again in a moment.");
   if(API){
     try{ return startSession(await api('login',{name,pass})); }
     catch(e){ // an account made on this phone before online storage was connected: move it online now (we know the password at this moment)
@@ -2027,7 +2035,7 @@ function buyUrl(a){
   if(/^www\./i.test(v)) return 'https://'+v;
   let d=v.replace(/\D/g,''); if(!d) return a.link||'#';
   if(d.startsWith('0')) d='233'+d.slice(1);
-  const msg=encodeURIComponent(`Hi ${a.biz}, I saw your ad on Study Partner and I'd like to know more.`);
+  const msg=encodeURIComponent(`Hi ${a.biz}, I saw your ad on StudyLee and I'd like to know more.`);
   return 'https://wa.me/'+d+'?text='+msg;
 }
 function ytThumb(u){ const m=String(u||'').match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{11})/); return m?'https://img.youtube.com/vi/'+m[1]+'/hqdefault.jpg':null; }
@@ -2103,7 +2111,7 @@ function hashN(s){ let x=0; for(const ch of String(s)) x=(x*31+ch.charCodeAt(0))
 function renderShelf(){
   const per = window.innerWidth<560 ? 4 : 7;
   const rows = Math.max(3, Math.ceil(courses.length/per));
-  let out = '<div class="case-top">✦ Study Partner Library ✦</div>';
+  let out = '<div class="case-top">✦ StudyLee Library ✦</div>';
   for(let r=0;r<rows;r++){
     const items = courses.slice(r*per,(r+1)*per);
     out += '<div class="shelf-row">' + items.map(c=>{
@@ -2510,7 +2518,7 @@ async function showXlsx(title,src){
 }
 function showNoPreview(title,src,ext){
   prepViewer(title,'',src,'Download original',false);
-  viewerHelp('<b>This kind of file ('+(ext?'.'+esc(ext):'unknown type')+') can\'t be shown inside Study Partner.</b><br><br>Files that open here: PDF, PowerPoint, Word, Excel, pictures and text files. Save yours in one of those formats and upload it again.<br><br>If you really need this file, tap <b>Download original</b> above.');
+  viewerHelp('<b>This kind of file ('+(ext?'.'+esc(ext):'unknown type')+') can\'t be shown inside StudyLee.</b><br><br>Files that open here: PDF, PowerPoint, Word, Excel, pictures and text files. Save yours in one of those formats and upload it again.<br><br>If you really need this file, tap <b>Download original</b> above.');
 }
 function matFileChanged(inp,hintId){
   const f=inp.files[0], hint=$(hintId||'matHint'); if(!f){ hint.classList.add('hide'); return; }
@@ -2518,7 +2526,7 @@ function matFileChanged(inp,hintId){
   if(f.size>MAX_FILE_MB*1048576) msg='⚠️ This file is '+Math.round(f.size/1048576)+'MB and the limit is '+MAX_FILE_MB+'MB. Compress its pictures, or add it by link instead.';
   else if(ext==='ppt') msg='ℹ️ Old .ppt format: it opens with a basic viewer (shows a small “Flyfish Viewer” mark) or as plain slide text. For the best result, open it in PowerPoint → File → Save As → .pptx and upload that.';
   else if(ext==='doc') msg='ℹ️ Old .doc format: it opens as plain text (no pictures or layout). For the full look, save it as .docx or PDF first.';
-  else if(!/^(pdf|docx|pptx|xlsx|png|jpe?g|gif|webp|bmp|svg|jfif|txt|csv|tsv|md|rtf)$/.test(ext)) msg="ℹ️ .'"+ext+"' files can't be shown inside Study Partner. Save it as PDF, Word, PowerPoint or Excel first.";
+  else if(!/^(pdf|docx|pptx|xlsx|png|jpe?g|gif|webp|bmp|svg|jfif|txt|csv|tsv|md|rtf)$/.test(ext)) msg="ℹ️ .'"+ext+"' files can't be shown inside StudyLee. Save it as PDF, Word, PowerPoint or Excel first.";
   hint.textContent=msg; hint.classList.toggle('hide',!msg);
 }
 // ---- background slide conversion: Library materials and PASCO files share one queue ----
@@ -2731,7 +2739,7 @@ function payAd(){
   if(kind==='flyer' && !adImg){ toast('Upload your flyer or product photo'); return; }
   if(!wa){ toast('Add a WhatsApp number or website for the Buy now button'); return; }
   if(!$('agree').checked){ toast('Please accept the ad terms first'); return; }
-  const email = (user && user.name ? user.name.replace(/\s+/g,'').toLowerCase() : 'guest') + '@studypartner.app';
+  const email = (user && user.name ? user.name.replace(/\s+/g,'').toLowerCase() : 'guest') + '@studylee.app';
   const handler = PaystackPop.setup({
     key: 'pk_live_e81e6a7c861963103869a7310dd19821f476bad7',
     email,
@@ -2846,7 +2854,7 @@ function openLesson(cid,lid){
 function showCert(cid){
   const c=online.find(x=>x.id===cid), p=progress[pkey(cid)]||{};
   const id='SP-'+(hashN(pkey(cid)+(p.at||'')).toString(36).toUpperCase().slice(0,8));
-  $('certPaper').innerHTML=`<div style="font-size:12px;letter-spacing:.3em;color:#7a5f52">STUDY PARTNER</div><h1>CERTIFICATE OF COMPLETION</h1>
+  $('certPaper').innerHTML=`<div style="font-size:12px;letter-spacing:.3em;color:#7a5f52">STUDYLEE</div><h1>CERTIFICATE OF COMPLETION</h1>
     <p style="margin:14px 0 0">This is to certify that</p><div class="nm">${esc(user.name)}</div>
     <p style="margin:6px 0">has successfully completed the free online course</p>
     <div style="font-size:22px;font-weight:bold;margin:6px 0 18px">${esc(c.title)}</div>
@@ -2979,7 +2987,7 @@ async function bootRemote(){
     catch(e){ if(e.status===401||e.status===403){ toast(e.message); user=null; sessionToken=null; persistSession(); applyTheme(); updateHeader(); } }
   } else if(adminMode && sessionToken){
     try{ const mj=await api('me'); adminDefault=!!mj.usingDefault; }catch(e){ adminMode=false; sessionToken=null; persistSession(); }
-  } else if(adminMode || (user && !sessionToken)){ if(user&&!sessionToken) toast('Study Partner now saves accounts online — please log in once to move yours.'); adminMode=false; user=null; persistSession(); applyTheme(); updateHeader(); }
+  } else if(adminMode || (user && !sessionToken)){ if(user&&!sessionToken) toast('StudyLee now saves accounts online — please log in once to move yours.'); adminMode=false; user=null; persistSession(); applyTheme(); updateHeader(); }
   renderHero();
 }
 (async()=>{ await apiReady; updateSyncBanner(); await bootRemote(); })();
@@ -2994,7 +3002,7 @@ window.addEventListener('online',()=>{ if(apiState==='unknown') retryDetect(); e
 
 </script>
 <script>
-/* Study Partner — search engine UI. One component, used on the Search page and in the study dock
+/* StudyLee — search engine UI. One component, used on the Search page and in the study dock
    (the research panel that sits beside an open file). Depends on helpers from index.html: $, esc, toast, go. */
 (function () {
   'use strict';
@@ -3120,7 +3128,7 @@ window.addEventListener('online',()=>{ if(apiState==='unknown') retryDetect(); e
       if (d.answer) h += answerCard(d); else if (!d.instant && !d.results.length) h += '<div class="srch-card srch-warn"><b>No results found for “' + E(d.q) + '”.</b><br>Try different words — or <a href="' + E(d.googleUrl) + '" target="_blank" rel="noopener">search on Google ↗</a></div>';
       if (d.wiki) h += wikiCard(d.wiki);
       h += resultsCard(d.results);
-      if (d.learned && d.learned.length) h += '<div class="srch-card"><div class="qr-cap">FROM WHAT STUDY PARTNER HAS LEARNED</div><ul class="sx-learn">' + d.learned.map((x) => '<li><button data-act="read" data-url="' + E(x.url) + '" data-title="' + E(x.title) + '">' + E(x.title) + '</button><div style="color:var(--muted);font-size:13px">' + E(x.text) + ' · learned ' + ago(x.when) + '</div></li>').join('') + '</ul></div>';
+      if (d.learned && d.learned.length) h += '<div class="srch-card"><div class="qr-cap">FROM WHAT STUDYLEE HAS LEARNED</div><ul class="sx-learn">' + d.learned.map((x) => '<li><button data-act="read" data-url="' + E(x.url) + '" data-title="' + E(x.title) + '">' + E(x.title) + '</button><div style="color:var(--muted);font-size:13px">' + E(x.text) + ' · learned ' + ago(x.when) + '</div></li>').join('') + '</ul></div>';
       if (d.related && d.related.length) h += '<div class="srch-card"><div class="ans-relcap">KEEP LEARNING</div>' + d.related.map((x) => '<button class="ans-chip" data-act="q" data-q="' + E(x) + '">' + E(x) + '</button>').join('') + '</div>';
       h += '<div class="sx-foot">Searched ' + (d.meta.sourcesAsked || 1) + ' sources in ' + (d.meta.ms / 1000).toFixed(1) + 's' + (d.cached ? ' (saved answer, refreshed daily)' : '') + (d.fallback ? '. <b>Showing Wikipedia results — the full search engine could not be reached just now.</b>' : '') + '. Still not what you need? <a href="' + E(d.googleUrl) + '" target="_blank" rel="noopener">Search “' + E(d.q) + '” on Google ↗</a></div>';
       P.all.innerHTML = h;
@@ -3312,7 +3320,7 @@ window.addEventListener('online',()=>{ if(apiState==='unknown') retryDetect(); e
 })();
 </script>
 <script>
-/* Study Partner — newer features (kept apart from the older code so nothing there is disturbed):
+/* StudyLee — newer features (kept apart from the older code so nothing there is disturbed):
    sign-up/login switch · quick Library uploads · cross-device sync · course reels · online courses with optional
    certificates · notebook · PASCO past-question quizzes with answers found on the web · full-screen admin extras.
    Relies on globals from index.html: $, esc, toast, api, store, user, sessionToken, API, adminMode, go, openModal,
@@ -3490,7 +3498,7 @@ window.addEventListener('online',()=>{ if(apiState==='unknown') retryDetect(); e
   FX._init1 = function () { authInit(); libraryInit(); };
 })();
 
-/* Study Partner — Online Courses page: "Course Reels" (Instagram-style feed) and "Courses" (admin-built, certificate optional). */
+/* StudyLee — Online Courses page: "Course Reels" (Instagram-style feed) and "Courses" (admin-built, certificate optional). */
 (function () {
   'use strict';
   const FX = window.FX;
@@ -3667,14 +3675,14 @@ window.addEventListener('online',()=>{ if(apiState==='unknown') retryDetect(); e
   /* ---- share (WhatsApp and other apps) ---- */
   function openShare(id) {
     const r = findR(id); if (!r) return;
-    const url = location.origin + '/?reel=' + encodeURIComponent(id), text = (r.caption ? r.caption.slice(0, 120) + ' — ' : '') + 'watch on Study Partner';
+    const url = location.origin + '/?reel=' + encodeURIComponent(id), text = (r.caption ? r.caption.slice(0, 120) + ' — ' : '') + 'watch on StudyLee';
     const T = encodeURIComponent(text + ' ' + url), U = encodeURIComponent(url), TT = encodeURIComponent(text);
     const link = (href, ic, label) => '<a class="fx-shbtn" href="' + href + '" target="_blank" rel="noopener"><span>' + ic + '</span>' + label + '</a>';
     modal('m-fxSh', '<div class="fx-sheet-h"><b>Share this reel</b><button class="btn ghost" onclick="FX.closeM(\'m-fxSh\')">✕</button></div><div class="fx-shgrid">'
       + link('https://wa.me/?text=' + T, '🟢', 'WhatsApp') + link('https://t.me/share/url?url=' + U + '&text=' + TT, '✈️', 'Telegram') + link('https://www.facebook.com/sharer/sharer.php?u=' + U, '🔵', 'Facebook') + link('https://twitter.com/intent/tweet?text=' + TT + '&url=' + U, '⚫', 'X (Twitter)')
       + '<button class="fx-shbtn" id="fxShCopy"><span>🔗</span>Copy link</button>' + (navigator.share ? '<button class="fx-shbtn" id="fxShNative"><span>📲</span>More apps…</button>' : '') + '</div>', 460);
     $('fxShCopy').onclick = async () => { try { await navigator.clipboard.writeText(url); toast('Link copied ✔'); } catch (e) { prompt('Copy this link', url); } };
-    const n = $('fxShNative'); if (n) n.onclick = () => navigator.share({ title: 'Study Partner', text, url }).catch(() => {});
+    const n = $('fxShNative'); if (n) n.onclick = () => navigator.share({ title: 'StudyLee', text, url }).catch(() => {});
   }
 
   /* ---- post a reel: a photo, a short video, or a TikTok / YouTube link (admin, or a student the admin allowed) ---- */
@@ -3782,7 +3790,7 @@ window.addEventListener('online',()=>{ if(apiState==='unknown') retryDetect(); e
   function showCert(c) {
     if (!signedInUser()) { needLogin('Log in to get your certificate'); return; }
     const p = prog(c.id), cid = 'SP-' + hashN(c.id + user.name + (p.at || '')).toString(36).toUpperCase().slice(0, 8);
-    $('certPaper').innerHTML = '<div style="font-size:12px;letter-spacing:.3em;color:#7a5f52">STUDY PARTNER</div><h1>CERTIFICATE OF COMPLETION</h1><p style="margin:14px 0 0">This is to certify that</p><div class="nm">' + E(user.name) + '</div><p style="margin:6px 0">has successfully completed the online course</p><div style="font-size:22px;font-weight:bold;margin:6px 0 18px">' + E(c.title) + '</div><div style="display:flex;justify-content:space-around;font-size:12px;color:#7a5f52;flex-wrap:wrap;gap:8px"><span>Date: ' + E(p.at || new Date().toDateString()) + '</span><span>Certificate ID: ' + cid + '</span></div>';
+    $('certPaper').innerHTML = '<div style="font-size:12px;letter-spacing:.3em;color:#7a5f52">STUDYLEE</div><h1>CERTIFICATE OF COMPLETION</h1><p style="margin:14px 0 0">This is to certify that</p><div class="nm">' + E(user.name) + '</div><p style="margin:6px 0">has successfully completed the online course</p><div style="font-size:22px;font-weight:bold;margin:6px 0 18px">' + E(c.title) + '</div><div style="display:flex;justify-content:space-around;font-size:12px;color:#7a5f52;flex-wrap:wrap;gap:8px"><span>Date: ' + E(p.at || new Date().toDateString()) + '</span><span>Certificate ID: ' + cid + '</span></div>';
     openModal('cert');
   }
 
@@ -3855,7 +3863,7 @@ window.addEventListener('online',()=>{ if(apiState==='unknown') retryDetect(); e
   };
 })();
 
-/* Study Partner — admin dashboard extras: full-screen header, Reels manager (+ who may post), Course builder, per-student "Reels" switch. */
+/* StudyLee — admin dashboard extras: full-screen header, Reels manager (+ who may post), Course builder, per-student "Reels" switch. */
 (function () {
   'use strict';
   const FX = window.FX;
@@ -3870,7 +3878,7 @@ window.addEventListener('online',()=>{ if(apiState==='unknown') retryDetect(); e
   /* ---------- frame: top bar, new tabs, new panels ---------- */
   function frame() {
     const m = $q('#m-admin .modal'); if (!m || $('fxAdmBar')) return;
-    m.insertBefore(mk('<div id="fxAdmBar" class="fx-admbar"><div><b>🛠 Admin Dashboard</b><small>Study Partner</small></div><button class="btn" onclick="closeModal(\'m-admin\')">✕ Exit admin</button></div>'), m.firstChild);
+    m.insertBefore(mk('<div id="fxAdmBar" class="fx-admbar"><div><b>🛠 Admin Dashboard</b><small>StudyLee</small></div><button class="btn" onclick="closeModal(\'m-admin\')">✕ Exit admin</button></div>'), m.firstChild);
     const tabs = $('admTabs'); if (!tabs) return;
     const old = $q('button[data-t="courses"]', tabs); if (old) old.textContent = 'Old courses';
     tabs.insertBefore(mk('<button data-t="reels" onclick="admTab(\'reels\')">🎬 Reels</button>'), tabs.children[1] || null);
@@ -4031,7 +4039,7 @@ window.addEventListener('online',()=>{ if(apiState==='unknown') retryDetect(); e
   FX._init3 = frame;
 })();
 
-/* Study Partner — Notebook: a small window to take notes while a lecture is on or while researching.
+/* StudyLee — Notebook: a small window to take notes while a lecture is on or while researching.
    Real-notebook feel: lined / grid / dotted paper, handwriting fonts, blue / black / red pen, drawing with a finger or stylus,
    highlighter, eraser, and pages that flip. Notes follow the account to other devices (see sync in features.js). */
 (function () {
@@ -4210,7 +4218,7 @@ window.addEventListener('online',()=>{ if(apiState==='unknown') retryDetect(); e
   FX._init4 = entryPoints;
 })();
 
-/* Study Partner — PASCO: "Upload past questions" is one tap. The file is read here, its questions are found, and the answers
+/* StudyLee — PASCO: "Upload past questions" is one tap. The file is read here, its questions are found, and the answers
    are looked up on the internet by the search engine. The result is a quiz plus an answer sheet with sources. */
 (function () {
   'use strict';
@@ -4450,7 +4458,7 @@ window.addEventListener('online',()=>{ if(apiState==='unknown') retryDetect(); e
     const ps = $('v-pasco'); if (!ps || $('pqNote')) return;
     const first = $q('button.btn', ps); if (first) { first.textContent = '📤 Upload past questions'; first.setAttribute('onclick', 'FX.pqPick()'); }
     first.insertAdjacentElement('afterend', mk('<span class="pq-bar"><button class="btn ghost" onclick="FX.pqPaste()">📋 Paste questions</button><button class="btn ghost" onclick="FX.pqOwn()">✍ Write my own</button></span>'));
-    ps.insertBefore(mk('<p id="pqNote" class="rl-sub" style="margin:8px 0 0">Choose a PDF, Word file or a photo of past questions. Study Partner reads the questions, <b>finds the answers on the internet</b>, and turns them into a quiz. Prefer to set the answers yourself? Use <b>Write my own</b>.</p>'), $('pascoList'));
+    ps.insertBefore(mk('<p id="pqNote" class="rl-sub" style="margin:8px 0 0">Choose a PDF, Word file or a photo of past questions. StudyLee reads the questions, <b>finds the answers on the internet</b>, and turns them into a quiz. Prefer to set the answers yourself? Use <b>Write my own</b>.</p>'), $('pascoList'));
     const more = mk('<p class="rl-sub" style="margin:6px 0 0"><a href="#" id="pqOld" style="color:var(--purple);font-weight:700">Add a link or a file without a quiz</a></p>'); $('pqNote').insertAdjacentElement('afterend', more); $('pqOld').onclick = (e) => { e.preventDefault(); openModal('newPasco'); };
     const rp = window.renderPasco; window.renderPasco = function () {
       rp();
@@ -4468,7 +4476,7 @@ window.addEventListener('online',()=>{ if(apiState==='unknown') retryDetect(); e
   FX._init5 = pageInit;
 })();
 
-/* Study Partner — reel videos: up to 2 minutes. Longer videos open a trim screen; big videos are shrunk on the phone before they are sent.
+/* StudyLee — reel videos: up to 2 minutes. Longer videos open a trim screen; big videos are shrunk on the phone before they are sent.
    Shrinking plays the chosen part and re-records it small, so it takes about as long as the clip itself. */
 (function () {
   'use strict';
@@ -4537,7 +4545,7 @@ window.addEventListener('online',()=>{ if(apiState==='unknown') retryDetect(); e
   };
 })();
 
-/* Study Partner — My Desk: tapping a book on the shelf opens a study desk for that course (like a library student taking a book to a desk).
+/* StudyLee — My Desk: tapping a book on the shelf opens a study desk for that course (like a library student taking a book to a desk).
    Also: the new logo, and which floating buttons (Notes 📓 / Research 🔍) show on which screen. */
 (function () {
   'use strict';
@@ -4564,9 +4572,7 @@ window.addEventListener('online',()=>{ if(apiState==='unknown') retryDetect(); e
     if ($('v-desk')) return;
     const sec = mk('<section id="v-desk" class="hide">'
       + '<div class="dk-bar"><button class="dk-back" onclick="FX.deskBack()">‹ <span>Library</span></button><b class="dk-title">📚 My Desk</b><span class="dk-clock" id="dkClock" title="Time now"></span>'
-      + '<button class="dk-timer" id="dkTimer" onclick="toggleTimer()" title="Study session"><span id="dkTm">00:00</span><small id="dkTmBtn">▶ Start</small></button></div>'
-      + '<div class="dk-rules" id="dkRules"><button class="dk-rules-h" onclick="FX.deskRules()"><span>📌 <b>Library rules</b></span><span class="dk-rules-s" id="dkRulesS">Quiet · Read, then write · Be kind</span><i id="dkRulesI">▾</i></button><div class="dk-rules-b hide" id="dkRulesB">'
-      + RULES.map((r) => '<div class="dk-rule"><span>' + r[0] + '</span><div><b>' + r[1] + '</b><small>' + r[2] + '</small></div></div>').join('') + '</div></div>'
+      + '<button class="dk-timer" id="dkTimer" onclick="toggleTimer()" title="Start or pause your study timer"><span id="dkTm">00:00</span><small id="dkTmBtn">▶ Start</small></button></div>'
       + '<div class="dk-tabs" id="dkTabs"></div><div id="dkBody"></div></section>');
     $('v-library').insertAdjacentElement('afterend', sec);
     sec.addEventListener('click', onClick);
@@ -4587,13 +4593,12 @@ window.addEventListener('online',()=>{ if(apiState==='unknown') retryDetect(); e
 
   function draw() {
     const c = course(); if (!c) { FX.deskBack(); return; }
-    $('dkTabs').innerHTML = courses.map((x) => '<button class="dk-tab' + (x.id === c.id ? ' on' : '') + '" data-c="' + x.id + '"><i style="background:' + E(x.color) + '"></i><span>' + E(x.name) + '</span></button>').join('') + '<button class="dk-tab dk-newc" onclick="openModal(\'newCourse\')">＋ New</button>';
+    $('dkTabs').innerHTML = courses.map((x) => '<button class="dk-tab' + (x.id === c.id ? ' on' : '') + '" data-c="' + x.id + '"><i style="background:' + E(x.color) + '"></i><span>' + E(x.name) + '</span></button>').join('') + '<button class="dk-tab dk-newc" onclick="openModal(\'newCourse\')">＋ Add course</button>';
     const mats = c.materials.map((m, i) => ({ m, i })), notes = mats.filter((x) => x.m.type === 'note'), files = mats.filter((x) => x.m.type !== 'note');
     const list = D.filter === 'notes' ? notes : D.filter === 'files' ? files : mats;
     $('dkBody').innerHTML = '<div class="dk-course" style="--c:' + E(c.color) + '"><div class="dk-spine"></div><div class="dk-chead"><div class="dk-cname"><h2>' + E(c.name) + '</h2><small>' + (c.code ? E(c.code) + ' · ' : '') + c.materials.length + ' item' + (c.materials.length === 1 ? '' : 's') + '</small></div><button class="dk-more" onclick="twice(this,()=>{deleteCourse(\'' + c.id + '\');FX.deskAfterDelete();})" title="Delete this course">🗑</button></div>'
-      + '<div class="dk-actions"><button class="btn" onclick="FX.pickFiles()">📎 Add slides / files</button><button class="btn ghost" onclick="FX.addNote()">📝 Add note</button></div></div>'
-      + '<div class="dk-seg"><button data-f="all" class="' + (D.filter === 'all' ? 'on' : '') + '">All <i>' + mats.length + '</i></button><button data-f="files" class="' + (D.filter === 'files' ? 'on' : '') + '">Slides &amp; files <i>' + files.length + '</i></button><button data-f="notes" class="' + (D.filter === 'notes' ? 'on' : '') + '">Notes <i>' + notes.length + '</i></button></div>'
-      + '<div class="dk-list">' + (list.length ? list.map((x) => item(c, x.m, x.i)).join('') : '<div class="dk-empty"><div style="font-size:40px">🪑</div><b>Your desk is clear</b><p>' + (mats.length ? 'Nothing in this group yet.' : 'Add the first slide, file or note for this course.') + '</p></div>') + '</div>';
+      + '<div class="dk-actions"><button class="btn" onclick="FX.pickFiles()">📎 Add slides or files</button><button class="btn ghost" onclick="FX.addNote()">📝 Write a note</button></div></div>'
+      + '<div class="dk-list">' + (list.length ? list.map((x) => item(c, x.m, x.i)).join('') : '<div class="dk-empty"><div style="font-size:40px">🪑</div><b>Nothing here yet</b><p>Tap “Add slides or files” or “Write a note” above, then tap Open to read it.</p></div>') + '</div>';
     markAway(c);
   }
   function item(c, m, i) {
@@ -4639,15 +4644,14 @@ window.addEventListener('online',()=>{ if(apiState==='unknown') retryDetect(); e
   }
   FX.fabPolicy = policy;
 
-  /* ======================= logo: two study pals sharing a book ======================= */
-  const PALS = '<circle cx="10.6" cy="9.4" r="3.7" fill="#fff"/><path d="M4.2 21.6C4.2 17 7 14.7 10.6 14.7c3.2 0 5.7 1.5 6.3 4.5v2.4z" fill="#fff"/>'
-    + '<circle cx="21.4" cy="9.4" r="3.7" fill="#fde68a"/><path d="M27.8 21.6C27.8 17 25 14.7 21.4 14.7c-3.2 0-5.7 1.5-6.3 4.5v2.4z" fill="#fde68a"/>'
-    + '<path d="M3.4 23.2C8.4 21.8 12.8 22.2 16 24.2c3.2-2 7.6-2.4 12.6-1v5.2c-5-1.3-9.4-.9-12.6 1.1-3.2-2-7.6-2.4-12.6-1.1z" fill="#fff"/><path d="M16 24.2v5.1" stroke="#c026d3" stroke-opacity=".45" stroke-width="1"/>';
+  /* ======================= logo: an L on an open book (StudyLee) ======================= */
+  const PALS = '<path d="M9.6 3.2h4.9v11.6h7.9v4.5H9.6z" fill="#fff"/><path d="M23.6 3.4l.9 2.3 2.3.9-2.3.9-.9 2.3-.9-2.3-2.3-.9 2.3-.9z" fill="#fde68a"/>'
+    + '<path d="M3.2 22.6C8.2 21.3 12.7 21.7 16 23.8v6.2c-3.3-2-7.8-2.4-12.8-1.1z" fill="#fff"/><path d="M28.8 22.6C23.8 21.3 19.3 21.7 16 23.8v6.2c3.3-2 7.8-2.4 12.8-1.1z" fill="#fff" fill-opacity=".82"/>';
   function logo() {
     const lm = $q('.logo-mark'); if (lm) lm.innerHTML = '<svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true">' + PALS + '</svg>';
     const icon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5b21b6"/><stop offset=".6" stop-color="#c026d3"/><stop offset="1" stop-color="#f43f5e"/></linearGradient></defs><rect width="64" height="64" rx="15" fill="url(#g)"/><g transform="translate(6 6) scale(1.625)">' + PALS + '</g></svg>';
     let l = $q('link[rel="icon"]'); if (!l) { l = document.createElement('link'); l.rel = 'icon'; document.head.appendChild(l); } l.type = 'image/svg+xml'; l.href = 'data:image/svg+xml,' + encodeURIComponent(icon);
-    document.title = 'Study Partner';
+    document.title = 'StudyLee';
   }
 
   FX._init6 = function () {
@@ -4659,15 +4663,15 @@ window.addEventListener('online',()=>{ if(apiState==='unknown') retryDetect(); e
   };
 })();
 
-/* Study Partner — start the newer features. Each part starts on its own, so a problem in one can never stop the others. */
+/* StudyLee — start the newer features. Each part starts on its own, so a problem in one can never stop the others. */
 (function () {
   'use strict';
   const FX = window.FX || {};
-  ['_init1', '_init2', '_init3', '_init4', '_init5', '_init6'].forEach((k) => { try { if (typeof FX[k] === 'function') FX[k](); } catch (e) { console.error('Study Partner feature failed to start:', k, e); } });
+  ['_init1', '_init2', '_init3', '_init4', '_init5', '_init6'].forEach((k) => { try { if (typeof FX[k] === 'function') FX[k](); } catch (e) { console.error('StudyLee feature failed to start:', k, e); } });
 })();
 </script>
 <script>
-/* Study Partner — new interface layer (bottom bar, Me, sign-up gate, account, settings, My Desk, Pasco + online quizzes,
+/* StudyLee — new interface layer (bottom bar, Me, sign-up gate, account, settings, My Desk, Pasco + online quizzes,
    admin notifications / quizzes). It sits on top of the existing app: no existing logic is replaced, only wrapped. */
 (function () {
   'use strict';
@@ -4722,7 +4726,7 @@ window.addEventListener('online',()=>{ if(apiState==='unknown') retryDetect(); e
   const origUH = window.updateHeader;
   function brand() {
     const m = $q('#m-auth .modal'); if (!m || $q('.gate-brand', m)) return;
-    m.insertBefore(mk('<div class="gate-brand"><span class="logo-mark">' + ($q('.logo-mark') ? $q('.logo-mark').innerHTML : '') + '</span><b>Study Partner</b><span>Create your free account to get started</span></div>'), m.firstChild);
+    m.insertBefore(mk('<div class="gate-brand"><span class="logo-mark">' + ($q('.logo-mark') ? $q('.logo-mark').innerHTML : '') + '</span><b>StudyLee</b><span>Create your free account to get started</span></div>'), m.firstChild);
   }
   function syncGate() {
     const out = !(user || adminMode); document.body.classList.toggle('gate', out);
@@ -4741,7 +4745,7 @@ window.addEventListener('online',()=>{ if(apiState==='unknown') retryDetect(); e
   /* ---------------- sign out — always asks first ---------------- */
   UI2.confirmSignOut = function () {
     const old = $('m-so'); if (old) old.remove();
-    const m = mk('<div class="modal-bg" id="m-so" style="z-index:400"><div class="modal so-modal" role="dialog" aria-modal="true"><div class="so-ic">' + I('logout', 28) + '</div><h2>Sign out?</h2><p>You will need to log in again to use Study Partner.</p><div class="so-btns"><button class="btn ghost" id="soNo">Cancel</button><button class="btn" id="soYes">Sign out</button></div></div></div>');
+    const m = mk('<div class="modal-bg" id="m-so" style="z-index:400"><div class="modal so-modal" role="dialog" aria-modal="true"><div class="so-ic">' + I('logout', 28) + '</div><h2>Sign out?</h2><p>You will need to log in again to use StudyLee.</p><div class="so-btns"><button class="btn ghost" id="soNo">Cancel</button><button class="btn" id="soYes">Sign out</button></div></div></div>');
     document.body.appendChild(m);
     $('soNo').onclick = () => m.remove(); m.addEventListener('mousedown', (e) => { if (e.target === m) m.remove(); });
     $('soYes').onclick = () => { m.remove(); try { closeModal('m-admin'); } catch (e) { /* ignore */ } signOut(); };
@@ -4772,6 +4776,8 @@ window.addEventListener('online',()=>{ if(apiState==='unknown') retryDetect(); e
   function fillDesk() {
     const d = $('v-desk'); if (!d || $('dkMore')) return;
     const more = mk('<div id="dkMore"></div>'); d.appendChild(more); more.appendChild($('mcWrap')); more.appendChild($('ssWrap'));
+    const ob = mk('<button type="button" class="dk-opt" id="dkOpt">⚙ More options (sound &amp; voice)</button>'); const tm = $q('#ssWrap .card.timer'); if (tm) tm.appendChild(ob);
+    if (ob) ob.onclick = () => { const w = $('ssWrap'); const on = w.classList.toggle('opt'); ob.innerHTML = on ? '⚙ Hide options' : '⚙ More options (sound &amp; voice)'; };
     const t = $q('.dk-title', d); if (t) t.innerHTML = I('desk', 18) + ' My Desk';
   }
 

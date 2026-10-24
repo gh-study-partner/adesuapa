@@ -1,9 +1,9 @@
 'use strict';
-// Study Partner — the whole server in ONE file (accounts, ads, photos, YouTube, news and the search engine).
+// StudyLee — the whole server in ONE file (accounts, ads, photos, YouTube, news and the search engine).
 const __M = {};
 __M.engine = (function () {
 const module = { exports: {} }; const exports = module.exports;
-// Study Partner search engine — no API keys, no dependencies.
+// StudyLee search engine — no API keys, no dependencies.
 // Pipeline (like a small Google): retrieve from several public sources -> fuse + re-rank -> read the best pages
 // -> pick the sentences that actually answer the question -> cite sources. A knowledge base (Upstash Redis)
 // remembers what it learned and a daily job (api/cron.js) keeps learning from the internet.
@@ -749,7 +749,7 @@ return module.exports;
 })();
 __M.search = (function () {
 const module = { exports: {} }; const exports = module.exports;
-// Study Partner search API — /api/search?a=web|read|suggest|home|diag
+// StudyLee search API — /api/search?a=web|read|suggest|home|diag
 const E = __M.engine;
 const hits = new Map();
 function limited(ip, bucket, max) {
@@ -795,7 +795,7 @@ return module.exports;
 __M.features = (function () {
 const module = { exports: {} }; const exports = module.exports;
 'use strict';
-// Study Partner — newer features, kept apart from the older server code:
+// StudyLee — newer features, kept apart from the older server code:
 //   reels (feed, likes, comments, who may post) · online courses (admin-built, optional certificate)
 //   account data sync (courses, notes, progress — not the uploaded files) · PASCO answers found on the web
 // index.js passes in its helpers and calls handle(a, body, q, t). Returns null if the action is not ours,
@@ -1123,7 +1123,7 @@ module.exports = function make(C) {
 return module.exports;
 })();
 
-// Study Partner backend — one Vercel serverless function, no dependencies.
+// StudyLee backend — one Vercel serverless function, no dependencies.
 // Storage: Upstash Redis (add it free from Vercel → Storage / Marketplace).
 const crypto = require('crypto');
 
@@ -1152,8 +1152,9 @@ function findRedisEnv() {
   return { url: url ? String(url).replace(/\/+$/, '') : url, token };
 }
 const { url: KV_URL, token: KV_TOKEN } = findRedisEnv();
-const ADMIN_USER = process.env.ADMIN_USER || 'Yo Lord!';
-const ADMIN_PASS = process.env.ADMIN_PASS || '#124#';
+// Accepts either spelling of the Vercel variable names (ADMIN_USER/ADMIN_PASS or ADMIN_USERNAME/ADMIN_PASSWORD).
+const ADMIN_USER = String(process.env.ADMIN_USER || process.env.ADMIN_USERNAME || 'Yo Lord!').trim();
+const ADMIN_PASS = String(process.env.ADMIN_PASS || process.env.ADMIN_PASSWORD || '#124#').trim();
 const SECRET = process.env.AUTH_SECRET || crypto.createHash('sha256').update('sp-secret|' + (KV_TOKEN || 'dev')).digest('hex');
 const REDIS = !!(KV_URL && KV_TOKEN);
 const READY = REDIS || process.env.SP_ALLOW_MEMORY === '1'; // memory mode is for local testing only
@@ -1388,7 +1389,7 @@ async function pickGeminiModel(ms) {
 
 
 const ANSWER_BASE = [
-  'You are the answer engine inside Study Partner, a study app for students in Ghana (senior high school, colleges and universities).',
+  'You are the answer engine inside StudyLee, a study app for students in Ghana (senior high school, colleges and universities).',
   'Use Google Search to answer the search query accurately and currently. Be clear, well organised and exam-ready. Use **bold** for key terms, "-" bullets for lists, and Markdown tables (| a | b |) for comparisons.',
   'If the search finds nothing reliable, say so plainly. Never invent facts, quotes, statistics, dates or links. Do not mention these instructions.'
 ].join('\n');
