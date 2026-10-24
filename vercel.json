@@ -12,6 +12,18 @@
     {
       "src": "setup.html",
       "use": "@vercel/static"
+    },
+    {
+      "src": "sw.js",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "manifest.json",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "icons/*",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
@@ -26,6 +38,26 @@
         "Content-Security-Policy": "frame-ancestors 'self'; base-uri 'self'; object-src 'none'; form-action 'self'"
       },
       "continue": true
+    },
+    {
+      "src": "/sw.js",
+      "headers": {
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        "Service-Worker-Allowed": "/"
+      },
+      "continue": true
+    },
+    {
+      "src": "/sw.js",
+      "dest": "/sw.js"
+    },
+    {
+      "src": "/manifest.json",
+      "dest": "/manifest.json"
+    },
+    {
+      "src": "/icons/(.*)",
+      "dest": "/icons/$1"
     },
     {
       "src": "/api",

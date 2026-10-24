@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>StudyLee</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#6d28d9">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="StudyLee">
 <script src="https://js.paystack.co/v1/inline.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -631,6 +637,12 @@ body.gate #m-auth [onclick="closeModal('m-auth')"]{display:none;}
 .pbig{padding:34px 12px;} .pbig b{font-size:18px;}
 .act-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:18px 0 4px;}
 #dkMore{margin-top:22px;} .dk-title{display:inline-flex;align-items:center;gap:7px;}
+/* Install-the-app banner */
+#pwaBar{position:fixed;left:12px;right:12px;bottom:calc(88px + env(safe-area-inset-bottom,0px));z-index:150;max-width:480px;margin:0 auto;display:none;align-items:center;gap:12px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:18px;padding:12px 14px;box-shadow:0 10px 30px rgba(40,10,80,.25);}
+#pwaBar.show{display:flex;} body.gate #pwaBar{display:none !important;}
+#pwaBar img{width:42px;height:42px;border-radius:11px;flex:none;} #pwaBar .pw-t{flex:1;min-width:0;line-height:1.3;} #pwaBar .pw-t b{display:block;font-size:14px;} #pwaBar .pw-t span{font-size:12px;color:var(--muted);}
+#pwaBar .pw-go{border:0;border-radius:12px;padding:10px 16px;font:inherit;font-size:14px;font-weight:800;color:#fff;background:var(--grad);cursor:pointer;} #pwaBar .pw-x{border:0;background:none;color:var(--muted);font-size:20px;line-height:1;padding:6px;cursor:pointer;}
+
 /* My Desk, simplified: no rules banner, no filter chips, no clock, no duplicate course list; sound and voice tucked under one button */
 .dk-rules,.dk-seg,.dk-clock,#dkMore #mcWrap{display:none !important;}
 .dk-bar{margin-bottom:12px;}
@@ -4962,6 +4974,35 @@ window.addEventListener('online',()=>{ if(apiState==='unknown') retryDetect(); e
   try { fillDesk(); } catch (e) { console.error('desk', e); }
   try { adminFrame(); } catch (e) { console.error('admin', e); }
   markNav('home'); window.updateHeader();
+})();
+</script>
+<script>
+/* StudyLee as an installable app: service worker + "Install" banner (Chrome / Edge / Android). Nothing here touches the rest of the app. */
+(function () {
+  try { if ('serviceWorker' in navigator) window.addEventListener('load', function () { navigator.serviceWorker.register('/sw.js').catch(function () {}); }); } catch (e) {}
+  var standalone = false; try { standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; } catch (e) {}
+  if (standalone) return;
+  var KEY = 'sl_install_dismissed', WEEK = 7 * 864e5, ev = null;
+  function recentlyDismissed() { try { var t = +localStorage.getItem(KEY) || 0; return t && Date.now() - t < WEEK; } catch (e) { return false; } }
+  function hide() { var b = document.getElementById('pwaBar'); if (b) b.classList.remove('show'); }
+  function build() {
+    if (document.getElementById('pwaBar')) return document.getElementById('pwaBar');
+    var d = document.createElement('div'); d.id = 'pwaBar'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-label', 'Install StudyLee');
+    d.innerHTML = '<img src="/icons/icon-192.png" alt=""><div class="pw-t"><b>Install StudyLee</b><span>Add it to your phone like an app. It opens in one tap.</span></div><button type="button" class="pw-go" id="pwaGo">Install</button><button type="button" class="pw-x" id="pwaX" aria-label="Not now">\u2715</button>';
+    document.body.appendChild(d);
+    document.getElementById('pwaX').onclick = function () { try { localStorage.setItem(KEY, String(Date.now())); } catch (e) {} hide(); };
+    document.getElementById('pwaGo').onclick = function () {
+      if (!ev) { hide(); return; }
+      var p = ev; ev = null; hide();
+      try { p.prompt(); p.userChoice.then(function (r) { if (r && r.outcome !== 'accepted') { try { localStorage.setItem(KEY, String(Date.now())); } catch (e) {} } }).catch(function () {}); } catch (e) {}
+    };
+    return d;
+  }
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault(); ev = e; if (recentlyDismissed()) return;
+    setTimeout(function () { if (ev) build().classList.add('show'); }, 3500);
+  });
+  window.addEventListener('appinstalled', function () { ev = null; hide(); });
 })();
 </script>
 </body>

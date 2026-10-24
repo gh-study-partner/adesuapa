@@ -6,6 +6,9 @@ A static front-end (`index.html`) plus one serverless function (`server.js`). No
 
 ```
 index.html     the whole app
+manifest.json  makes the site installable as an app (name, colours, icons)
+sw.js          service worker (lets the app install and open fast; never touches /api)
+icons/         app icons used by the install feature (keep this folder)
 server.js      accounts, reels, online courses, quizzes, notifications, ads, photos, search
 setup.html     open /setup after deploying — it checks that everything is connected
 vercel.json    build settings + security headers
@@ -40,3 +43,7 @@ Open the dashboard from **Me** after logging in with the admin name and password
 - The server sends security headers (HTTPS only, no framing, no content sniffing).
 - Keep the repository **private**, set the admin login and `AUTH_SECRET` in Vercel (not in code), and keep payment *secret* keys out of the code and out of GitHub. The Paystack **public** key in `index.html` is meant to be public; the secret key is never needed by this app.
 - If a secret was ever pasted into a chat, an email or a public repo, regenerate it in its provider's dashboard.
+
+## Install as an app
+
+On Chrome (Android or computer) an **Install StudyLee** banner appears a few seconds after a student signs in; Chrome's address-bar install icon and the ⋮ menu → *Install app* work too. The installed app opens full-screen from the home screen. Accounts, quizzes and payments still need internet. To release an update, just redeploy — the app picks up the newest version the next time it opens with a connection.
