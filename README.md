@@ -46,4 +46,4 @@ Open the dashboard from **Me** after logging in with the admin name and password
 
 ## Install as an app
 
-On Chrome (Android or computer) an **Install StudyLee** banner appears a few seconds after a student signs in; Chrome's address-bar install icon and the ⋮ menu → *Install app* work too. The installed app opens full-screen from the home screen. Accounts, quizzes and payments still need internet. To release an update, just redeploy — the app picks up the newest version the next time it opens with a connection.
+On Chrome (Android or computer) an **Install StudyLee** banner appears a few seconds after a student signs in, and a purple **Get the StudyLee app** card sits at the top of **Account** (and in Settings) until the app is installed; Chrome's address-bar install icon and the ⋮ menu → *Install app* work too. The installed app opens full-screen from the home screen. Accounts, quizzes and payments still need internet. To release an update, just redeploy — the app picks up the newest version the next time it opens with a connection.

@@ -641,6 +641,11 @@ body.gate #m-auth [onclick="closeModal('m-auth')"]{display:none;}
 #pwaBar{position:fixed;left:12px;right:12px;bottom:calc(88px + env(safe-area-inset-bottom,0px));z-index:150;max-width:480px;margin:0 auto;display:none;align-items:center;gap:12px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:18px;padding:12px 14px;box-shadow:0 10px 30px rgba(40,10,80,.25);}
 #pwaBar.show{display:flex;} body.gate #pwaBar{display:none !important;}
 #pwaBar img{width:42px;height:42px;border-radius:11px;flex:none;} #pwaBar .pw-t{flex:1;min-width:0;line-height:1.3;} #pwaBar .pw-t b{display:block;font-size:14px;} #pwaBar .pw-t span{font-size:12px;color:var(--muted);}
+
+.pwa-card{display:flex;align-items:center;gap:12px;margin:16px 0 6px;padding:13px 14px;border-radius:18px;color:#fff;background:var(--grad);box-shadow:0 6px 18px rgba(109,40,217,.28);}
+.pwa-card img{width:44px;height:44px;border-radius:12px;flex:none;background:#fff2;} .pwa-card .pw-t{flex:1;min-width:0;line-height:1.3;} .pwa-card .pw-t b{display:block;font-size:15px;} .pwa-card .pw-t span{font-size:12.5px;opacity:.92;}
+.pwa-card .pw-go{border:0;border-radius:12px;padding:10px 14px;font:inherit;font-size:14px;font-weight:800;background:#fff;color:#6d28d9;cursor:pointer;flex:none;}
+.pwa-card.compact{margin:12px 0 0;}
 #pwaBar .pw-go{border:0;border-radius:12px;padding:10px 16px;font:inherit;font-size:14px;font-weight:800;color:#fff;background:var(--grad);cursor:pointer;} #pwaBar .pw-x{border:0;background:none;color:var(--muted);font-size:20px;line-height:1;padding:6px;cursor:pointer;}
 
 /* My Desk, simplified: no rules banner, no filter chips, no clock, no duplicate course list; sound and voice tucked under one button */
@@ -4977,32 +4982,74 @@ window.addEventListener('online',()=>{ if(apiState==='unknown') retryDetect(); e
 })();
 </script>
 <script>
-/* StudyLee as an installable app: service worker + "Install" banner (Chrome / Edge / Android). Nothing here touches the rest of the app. */
+/* StudyLee as an installable app: service worker, "Install" banner, and an "Install app" card inside Account + Settings (Chrome / Edge / Android).
+   Nothing here changes the rest of the app; every step is wrapped so a failure here can never break the page. */
 (function () {
   try { if ('serviceWorker' in navigator) window.addEventListener('load', function () { navigator.serviceWorker.register('/sw.js').catch(function () {}); }); } catch (e) {}
   var standalone = false; try { standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; } catch (e) {}
-  if (standalone) return;
-  var KEY = 'sl_install_dismissed', WEEK = 7 * 864e5, ev = null;
-  function recentlyDismissed() { try { var t = +localStorage.getItem(KEY) || 0; return t && Date.now() - t < WEEK; } catch (e) { return false; } }
-  function hide() { var b = document.getElementById('pwaBar'); if (b) b.classList.remove('show'); }
+  if (standalone) return;                                   // already running as the installed app: nothing to offer
+  var KEY = 'sl_install_dismissed', DONE = 'sl_installed', WEEK = 7 * 864e5, ev = null;
+  var ls = { get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+  var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  function installed() { return ls.get(DONE) === '1'; }
+  function recentlyDismissed() { var t = +ls.get(KEY) || 0; return t && Date.now() - t < WEEK; }
+  function hideBar() { var b = document.getElementById('pwaBar'); if (b) b.classList.remove('show'); }
+  function hideCards() { Array.prototype.forEach.call(document.querySelectorAll('.pwa-card'), function (c) { c.remove(); }); }
+
+  function help() {                                           // shown when Chrome has not handed us the one-tap install (yet)
+    var old = document.getElementById('m-pwaHelp'); if (old) old.remove();
+    var steps = isIOS ? '<li>Tap the <b>Share</b> button in Safari.</li><li>Choose <b>Add to Home Screen</b>.</li><li>Tap <b>Add</b>.</li>'
+                      : '<li>Open this site in <b>Chrome</b>.</li><li>Tap the <b>\u22EE</b> menu (top right).</li><li>Tap <b>Install app</b> (or <b>Add to Home screen</b>).</li>';
+    var m = document.createElement('div'); m.className = 'modal-bg'; m.id = 'm-pwaHelp'; m.style.zIndex = '400';
+    m.innerHTML = '<div class="modal"><h2 style="margin-top:0">Install StudyLee</h2><ol style="margin:8px 0 14px 20px;padding:0;line-height:1.8;font-size:15px">' + steps + '</ol><button class="btn" style="width:100%" id="pwaHelpOk">Got it</button></div>';
+    m.addEventListener('click', function (e) { if (e.target === m) m.remove(); });
+    document.body.appendChild(m); document.getElementById('pwaHelpOk').onclick = function () { m.remove(); };
+  }
+  function go() {
+    if (!ev) { help(); return; }
+    var p = ev; ev = null; hideBar();
+    try {
+      p.prompt();
+      p.userChoice.then(function (r) { if (r && r.outcome === 'accepted') { hideCards(); } else { ls.set(KEY, String(Date.now())); } }).catch(function () {});
+    } catch (e) { help(); }
+  }
+  window.SLInstall = { go: go };
+
+  /* the banner */
   function build() {
     if (document.getElementById('pwaBar')) return document.getElementById('pwaBar');
     var d = document.createElement('div'); d.id = 'pwaBar'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-label', 'Install StudyLee');
     d.innerHTML = '<img src="/icons/icon-192.png" alt=""><div class="pw-t"><b>Install StudyLee</b><span>Add it to your phone like an app. It opens in one tap.</span></div><button type="button" class="pw-go" id="pwaGo">Install</button><button type="button" class="pw-x" id="pwaX" aria-label="Not now">\u2715</button>';
     document.body.appendChild(d);
-    document.getElementById('pwaX').onclick = function () { try { localStorage.setItem(KEY, String(Date.now())); } catch (e) {} hide(); };
-    document.getElementById('pwaGo').onclick = function () {
-      if (!ev) { hide(); return; }
-      var p = ev; ev = null; hide();
-      try { p.prompt(); p.userChoice.then(function (r) { if (r && r.outcome !== 'accepted') { try { localStorage.setItem(KEY, String(Date.now())); } catch (e) {} } }).catch(function () {}); } catch (e) {}
-    };
+    document.getElementById('pwaX').onclick = function () { ls.set(KEY, String(Date.now())); hideBar(); };
+    document.getElementById('pwaGo').onclick = function () { hideBar(); go(); };
     return d;
   }
   window.addEventListener('beforeinstallprompt', function (e) {
-    e.preventDefault(); ev = e; if (recentlyDismissed()) return;
+    e.preventDefault(); ev = e; if (recentlyDismissed() || installed()) return;
     setTimeout(function () { if (ev) build().classList.add('show'); }, 3500);
   });
-  window.addEventListener('appinstalled', function () { ev = null; hide(); });
+  window.addEventListener('appinstalled', function () { ev = null; ls.set(DONE, '1'); hideBar(); hideCards(); });
+
+  /* the card inside Account and Settings: always there until the app is installed, so nobody has to hunt in Chrome's menu */
+  function card(compact) {
+    var c = document.createElement('div'); c.className = 'pwa-card' + (compact ? ' compact' : '');
+    c.innerHTML = '<img src="/icons/icon-192.png" alt=""><div class="pw-t"><b>Get the StudyLee app</b><span>Install it on your phone. It opens full-screen from your home screen.</span></div><button type="button" class="pw-go">Install app</button>';
+    c.querySelector('button').onclick = go; return c;
+  }
+  function wrap(name, place) {
+    var orig = window[name]; if (typeof orig !== 'function') return;
+    window[name] = function () {
+      var r = orig.apply(this, arguments);
+      try { if (!installed()) place(); } catch (e) {}
+      return r;
+    };
+  }
+  function ready() {
+    wrap('renderAccount', function () { var s = document.querySelector('#acMain .ac-stats'); if (s && !document.querySelector('#acMain .pwa-card')) s.parentNode.insertBefore(card(false), s); });
+    wrap('renderSettings', function () { var o = document.querySelector('#acSet .st-out'); if (o && !document.querySelector('#acSet .pwa-card')) o.parentNode.insertBefore(card(true), o); });
+  }
+  if (document.readyState === 'complete') ready(); else window.addEventListener('load', ready);
 })();
 </script>
 </body>
