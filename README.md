@@ -1,4 +1,4 @@
-# StudyLee
+# Adesua Pa
 
 A static front-end (`index.html`) plus one serverless function (`server.js`). No build step — deploy as-is.
 
@@ -9,6 +9,8 @@ index.html     the whole app
 manifest.json  makes the site installable as an app (name, colours, icons)
 sw.js          service worker (lets the app install and open fast; never touches /api)
 icons/         app icons used by the install feature (keep this folder)
+voice/         optional real voice recordings for the study timer (see voice/README.txt)
+logo/          logo files (SVG/PNG) for WhatsApp, posters, social media (not needed to run the site)
 server.js      accounts, reels, online courses, quizzes, notifications, ads, photos, search
 setup.html     open /setup after deploying — it checks that everything is connected
 vercel.json    build settings + security headers
@@ -46,4 +48,11 @@ Open the dashboard from **Me** after logging in with the admin name and password
 
 ## Install as an app
 
-On Chrome (Android or computer) an **Install StudyLee** banner appears a few seconds after a student signs in, and a purple **Get the StudyLee app** card sits at the top of **Account** (and in Settings) until the app is installed; Chrome's address-bar install icon and the ⋮ menu → *Install app* work too. The installed app opens full-screen from the home screen. Accounts, quizzes and payments still need internet. To release an update, just redeploy — the app picks up the newest version the next time it opens with a connection.
+On Chrome (Android or computer) an **Install Adesua Pa** banner appears a few seconds after a student signs in, and a purple **Get the Adesua Pa app** card sits at the top of **Account** (and in Settings) until the app is installed; Chrome's address-bar install icon and the ⋮ menu → *Install app* work too. The installed app opens full-screen from the home screen. Accounts, quizzes and payments still need internet. To release an update, just redeploy — the app picks up the newest version the next time it opens with a connection.
+
+## Akwaaba, voice and the welcome scene
+
+- **Welcome text** is now *Akwaaba* (Akan) everywhere.
+- **Study timer voice:** the lady's message is written in Twi. Phones cannot speak real Twi by themselves, so the app plays `voice/start.mp3` and `voice/pomo.mp3` if you add recordings (best), and otherwise reads the Twi text with the closest voice the phone has. See `voice/README.txt`.
+- **Library:** tapping a book on the shelf shows *Taking a seat…*, then opens My Desk. The student can tap *Return to shelf* to cancel.
+- **Create account:** a short animated welcome scene (a child reading, then waving “Akwaaba!”) plays once per visit before the form. Students can tap *Skip*.

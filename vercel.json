@@ -24,6 +24,10 @@
     {
       "src": "icons/*",
       "use": "@vercel/static"
+    },
+    {
+      "src": "voice/*",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
@@ -58,6 +62,10 @@
     {
       "src": "/icons/(.*)",
       "dest": "/icons/$1"
+    },
+    {
+      "src": "/voice/(.*)",
+      "dest": "/voice/$1"
     },
     {
       "src": "/api",
