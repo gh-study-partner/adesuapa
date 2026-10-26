@@ -52,7 +52,8 @@ On Chrome (Android or computer) an **Install Adesua Pa** banner appears a few se
 
 ## Akwaaba, voice and the welcome scene
 
-- **Welcome text** is now *Akwaaba* (Akan) everywhere.
-- **Study timer voice:** the lady's message is written in Twi. Phones cannot speak real Twi by themselves, so the app plays `voice/start.mp3` and `voice/pomo.mp3` if you add recordings (best), and otherwise reads the Twi text with the closest voice the phone has. See `voice/README.txt`.
-- **Library:** tapping a book on the shelf shows *Taking a seat…*, then opens My Desk. The student can tap *Return to shelf* to cancel.
-- **Create account:** a short animated welcome scene (a child reading, then waving “Akwaaba!”) plays once per visit before the form. Students can tap *Skip*.
+- **Welcome text** is *Akwaaba* (Akan) everywhere.
+- **Home** shows two cards, **Reels** and **Courses**. **Activity** is just the timetable.
+- **Study timer voice:** English, an African female voice (Nigerian, Ghanaian, South African or Kenyan English if the phone has one). Add `voice/start.mp3` and `voice/pomo.mp3` to use a real recording instead. See `voice/README.txt`.
+- **Library:** tapping a book shows *Taking a seat…*, then opens My Desk. *Return to shelf* cancels.
+- **Create account:** a small animated scene (a child reading, then waving “Akwaaba!”) plays on the page, and a full-screen version plays while the account is being created. Students can tap *Skip*.

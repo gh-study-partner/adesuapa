@@ -768,7 +768,7 @@ html.rl-lock body.rlbar #bnav,html.rl-lock #bnav{background:#000;border-color:#2
 .ip-armR{animation:ipArmReadOut .01s 2.75s both;}
 .ip-armW{opacity:0;transform-origin:210px 278px;animation:ipWave 1.7s 2.75s ease-in-out both;}
 .ip-bubble{transform-origin:222px 130px;animation:ipBubble .6s 3.05s cubic-bezier(.3,1.5,.5,1) both;}
-.ip-sym{opacity:0;font:800 20px system-ui,sans-serif;fill:#fde68a;animation:ipFloat 1.7s ease-out both;}
+.ip-sym{opacity:0;font:800 20px system-ui,sans-serif;fill:#fde68a;animation:ipFloat 1.3s ease-out both;}
 .cf{opacity:0;animation:ipBurst 1.35s 3.05s ease-out both;}
 .ip-bird{fill:none;stroke:#2a1060;stroke-width:2.6;stroke-linecap:round;animation:ipBird 5.4s linear both;}
 .ip-title{position:absolute;left:0;right:0;bottom:calc(5vh + env(safe-area-inset-bottom,0px));text-align:center;color:#fff;font-family:'Poppins',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;opacity:0;animation:ipTitle .7s 3.7s ease-out both;}
@@ -792,7 +792,31 @@ html.rl-lock body.rlbar #bnav,html.rl-lock #bnav{background:#000;border-color:#2
 @keyframes ipBurst{0%{opacity:1;transform:translate(0,0) scale(.4)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.1) rotate(220deg)}}
 @keyframes ipBird{from{transform:translate(-50px,0)}to{transform:translate(430px,-34px)}}
 @keyframes ipTitle{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-@media (prefers-reduced-motion:reduce){.ip-wrap{display:none!important}.seat-book,.seat-bar i{animation-duration:.01s}}
+@media (prefers-reduced-motion:reduce){.ip-stage,.gate-hero .ip-stage,.ip-rays,.ip-child{animation:none!important}.cf,.ip-bird{display:none}.seat-book,.seat-bar i{animation-duration:.01s}}
+
+/* --- 2nd round: site-coloured wordmark, Home cards, sign-up scene on the page --- */
+.lg-book{fill:var(--purple);}
+.logo-text{color:var(--purple);}
+.logo-text b,.gate-brand .wm1{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;}
+.gate-brand .wm2{color:var(--purple);}
+.gate-brand .logo-mark svg{width:60px;height:52px;} .gate-brand b{font-size:26px;}
+.home-h{margin:24px 0 0;}
+.hm-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;}
+@media (max-width:340px){.hm-grid{grid-template-columns:1fr;}}
+.hm-card{display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;min-height:176px;padding:16px;border-radius:18px;background:var(--card);border:1px solid var(--border);color:var(--text);font:inherit;cursor:pointer;transition:transform .15s,border-color .15s,box-shadow .15s;-webkit-tap-highlight-color:transparent;}
+.hm-card:hover{border-color:var(--purple);box-shadow:0 8px 22px rgba(109,40,217,.16);} .hm-card:active{transform:scale(.98);} .hm-card:focus-visible{outline:3px solid var(--purple);outline-offset:2px;}
+.hm-ic{width:50px;height:50px;border-radius:15px;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;margin-bottom:4px;box-shadow:0 6px 14px rgba(109,40,217,.28);}
+.hm-card b{font-size:18px;line-height:1.2;} .hm-card small{font-size:13px;line-height:1.45;color:var(--muted);flex:1;}
+.hm-go{display:inline-flex;align-items:center;gap:2px;font-size:14px;font-weight:800;color:var(--purple);margin-top:4px;}
+#m-auth .modal{position:relative;z-index:1;}
+.gate-hero{position:absolute;top:max(10px,env(safe-area-inset-top,0px));left:0;right:0;height:clamp(0px,calc((100vh - 457px) / 2 + 24px),250px);display:none;justify-content:center;pointer-events:none;z-index:0;}
+@media (min-height:700px){.gate-hero{display:flex;} #m-auth{padding-top:96px;}}
+.gate-hero .ip-scene{width:auto;height:100%;transform:scale(1.12);transform-origin:50% 100%;} .gate-hero .ip-stage{height:100%;width:auto;aspect-ratio:3/4;animation:ipSwayLoop 6.5s ease-in-out infinite alternate;}
+@keyframes ipSwayLoop{from{transform:rotateY(-13deg) rotateX(2deg)}to{transform:rotateY(11deg) rotateX(0)}}
+.ip-title{bottom:calc(8vh + env(safe-area-inset-bottom,0px));}
+.ip-status{position:absolute;left:0;right:0;bottom:calc(3vh + env(safe-area-inset-bottom,0px));display:flex;justify-content:center;align-items:center;gap:8px;color:#fff;font-size:14px;font-weight:600;}
+.ip-spin{width:16px;height:16px;border-radius:50%;border:2.5px solid rgba(255,255,255,.35);border-top-color:#fff;animation:ipSpinner .8s linear infinite;}
+@keyframes ipSpinner{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
@@ -830,18 +854,16 @@ html.rl-lock body.rlbar #bnav,html.rl-lock #bnav{background:#000;border-color:#2
       <div class="dots" id="dots"></div>
     </div>
 
-    <h2>Quick access</h2>
-    <div class="grid">
-      <div class="card"><b class="qa-t"><span class="qa-i" data-i="activity"></span>Activity</b><p style="color:var(--muted);font-size:13px">Set your weekly classes — it powers your daily home screen.</p><button class="btn ghost" onclick="go('timetable')">Open</button></div>
-      <div class="card"><b class="qa-t"><span class="qa-i" data-i="library"></span>Library</b><p style="color:var(--muted);font-size:13px">Create courses, shelve materials, read on-site.</p><button class="btn ghost" onclick="go('library')">Open</button></div>
-      <div class="card"><b class="qa-t"><span class="qa-i" data-i="pasco"></span>PASCO</b><p style="color:var(--muted);font-size:13px">This week's past questions — solve & track your score.</p><button class="btn ghost" onclick="go('pasco')">Open</button></div>
-      <div class="card"><b class="qa-t"><span class="qa-i" data-i="grad"></span>Online Courses</b><p style="color:var(--muted);font-size:13px">Free video &amp; slide courses — finish one and earn a certificate.</p><button class="btn ghost" onclick="requireAuth(()=>go('online'))">Open</button></div>
+    <h2 class="home-h">Reels &amp; Courses</h2>
+    <div class="hm-grid">
+      <button type="button" class="hm-card" onclick="homeOpen('reels')" aria-label="Open Reels"><span class="hm-ic" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M10 9l5 3-5 3z" fill="currentColor"/></svg></span><b>Reels</b><small>Short lessons and study tips. Swipe up for the next one.</small><span class="hm-go" aria-hidden="true">Watch <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span></button>
+      <button type="button" class="hm-card" onclick="homeOpen('courses')" aria-label="Open Courses"><span class="hm-ic" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10L12 5 2 10l10 5z"/><path d="M6 12v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg></span><b>Courses</b><small>Free video and slide courses. Finish one and earn a certificate.</small><span class="hm-go" aria-hidden="true">Browse <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span></button>
     </div>
   </section>
 
   <!-- TIMETABLE -->
   <section id="v-timetable" class="hide">
-    <div class="act-top"><h2 style="margin:0">My Activity</h2><button class="btn" onclick="go('online')"><span class="qa-i" data-i="grad"></span>Course</button></div>
+    <div class="act-top"><h2 style="margin:0">My Activity</h2></div>
     <p style="color:var(--muted);font-size:13px">This feeds the "today's classes" slide on Home.</p>
     <div class="day-tab" id="ttTabs"></div>
     <div id="ttEditor"></div>
@@ -861,7 +883,7 @@ html.rl-lock body.rlbar #bnav,html.rl-lock #bnav{background:#000;border-color:#2
       <div class="seg"><button id="tmS" class="on" onclick="setMode('sw')">Stopwatch</button><button id="tmP" onclick="setMode('pomo')">25-minute focus</button></div>
       <div class="clock" id="clock">00:00</div>
       <div class="tstat" id="tstat">Ready to Start Study Session</div>
-      <div class="voicebox"><span>🔔</span><div><b>Voice guide (Twi):</b><br>When you tap <b>Start</b>, a lady's voice says:<br><i>"Akwaaba! Mesrɛ wo, ma wo fon no nyɛ komm, na fa w'adwene to w'adesua so."</i><br><small>Welcome! Please silence your phone and focus on your study.</small></div></div>
+      <div class="voicebox"><span>🔔</span><div><b>African lady's voice:</b><br>When you tap <b>Start</b>, she says:<br><i>"Please turn on Do Not Disturb mode, or silence your notifications, for deep focus!"</i></div></div>
       <div class="trow"><button class="btn big" id="startBtn" onclick="toggleTimer()">▶ START STUDY SESSION</button><button class="btn ghost" onclick="resetSave()">↺ Reset &amp; Save</button></div>
       <div class="amb-head"><span>🎧 Ambient Focus Audio</span><button class="lnk" id="sndBtn" onclick="toggleSound()">🔊 Sound On</button></div>
       <div class="amb" id="amb">
@@ -919,7 +941,7 @@ html.rl-lock body.rlbar #bnav,html.rl-lock #bnav{background:#000;border-color:#2
     <button class="btn" onclick="openModal('newAd')">Run your business ad now</button>
   </div>
 
-  <footer>Adesua Pa — built for students, by students.</footer>
+  <footer>Adesua Pa — Learn well. Grow far.</footer>
 </main>
 
 <nav id="bnav" aria-label="Main navigation">
@@ -1057,7 +1079,7 @@ Answer: A"></textarea>
       <textarea id="ocDesc" rows="2" placeholder="Short description"></textarea>
       <div style="display:flex;gap:6px"><input id="ocCat" placeholder="Category"><input id="ocDur" placeholder="Duration e.g. 4 hrs"></div>
       <button class="btn" onclick="createOnline()">Publish course</button>
-      <p style="font-size:11px;color:var(--muted);margin:6px 0 0">Published courses appear for students under Home → Quick access → Online Courses. Add lessons (videos or slides) below.</p>
+      <p style="font-size:11px;color:var(--muted);margin:6px 0 0">Published courses appear for students under Home → Courses. Add lessons (videos or slides) below.</p>
     </div>
     <div id="adminOnline"></div>
   </div>
@@ -2975,25 +2997,45 @@ function speak(t){
   }catch(e){}
 }
 
-/* Desk voice (Twi). If recordings exist at /voice/start.mp3 and /voice/pomo.mp3 they are played; otherwise the phone's speech engine reads the Twi text. */
+/* Desk voice: English, an African female voice. The app looks for the warmest match on the phone (Nigerian, Ghanaian, South African, Kenyan English, then Swahili, then any female voice).
+   If real recordings are added at /voice/start.mp3 and /voice/pomo.mp3 they are played instead. */
 const VOICE = {
-  start: { twi: "Akwaaba! Mesrɛ wo, ma wo fon no nyɛ komm, na fa w'adwene to w'adesua so.", en: 'Welcome! Please silence your phone and focus on your study.' },
-  pomo: { twi: "Ayɛ adwuma papa! Wo bere no awie. Gye w'ahome simma anum.", en: 'Well done! Your time is up. Take a five-minute rest.' }
+  start: 'Please turn on Do Not Disturb mode, or silence your notifications, for deep focus!',
+  pomo: 'Pomodoro complete. Great work! Take a five minute break.'
 };
-function speakTwi(t){
+function pickVoice(){
+  const vs = (window.speechSynthesis && speechSynthesis.getVoices()) || [];
+  if(!vs.length) return null;
+  const femaleName = /female|woman|tessa|zira|samantha|susan|hazel|karen|moira|fiona|victoria|serena|kate|amy|emma|joanna|ayanda|zuri|amina|abeo|ezinne/i;
+  const maleName = /(^|[^a-z])male\b|\bman\b|david|mark|james|george|daniel|alex\b|fred|thomas|ryan|guy|ezechiel|abeo\b/i;
+  const score = v => {
+    let s = 0; const n = v.name || '', l = v.lang || '';
+    if(/^en[-_](NG|GH|ZA|KE|TZ|UG|ZW)/i.test(l)) s += 100;
+    else if(/^sw/i.test(l)) s += 55;
+    else if(/^en/i.test(l)) s += 10;
+    else return -1;
+    if(femaleName.test(n)) s += 40;
+    if(maleName.test(n) && !/female/i.test(n)) s -= 80;
+    if(/natural|neural|online|google|network/i.test(n)) s += 3;
+    return s;
+  };
+  let best = null, top = 0;
+  vs.forEach(v => { const s = score(v); if(s > top){ top = s; best = v; } });
+  return best;
+}
+function speakLady(t){
   if(!('speechSynthesis' in window)) return;
   try{
-    const say=t.replace(/ɛ/g,'e').replace(/ɔ/g,'o').replace(/Ɛ/g,'E').replace(/Ɔ/g,'O');
-    const u=new SpeechSynthesisUtterance(say), vs=speechSynthesis.getVoices();
-    const lang=re=>vs.find(v=>re.test(v.lang)), fem=/female|zira|samantha|susan|hazel|karen|victoria|moira|tessa|fiona|natasha/i;
-    const v=lang(/^(ak|tw)/i)||lang(/^sw/i)||vs.find(v=>/^en[-_](GH|NG|ZA|KE)/i.test(v.lang))||vs.find(v=>fem.test(v.name)&&/^en/i.test(v.lang))||lang(/^en/i);
-    if(v){u.voice=v;u.lang=v.lang;} u.pitch=1.1; u.rate=.85; speechSynthesis.cancel(); speechSynthesis.speak(u);
+    const u = new SpeechSynthesisUtterance(t), v = pickVoice();
+    if(v){ u.voice = v; u.lang = v.lang; } else { u.lang = 'en-NG'; }
+    u.pitch = 1.12; u.rate = .92; speechSynthesis.cancel(); speechSynthesis.speak(u);
   }catch(e){}
 }
+try{ if('speechSynthesis' in window) speechSynthesis.onvoiceschanged = () => {}; }catch(e){}
 function speakKey(k){
-  if(!soundOn) return; const m=VOICE[k]; if(!m) return;
-  let fell=false; const fallback=()=>{ if(fell) return; fell=true; speakTwi(m.twi); };
-  try{ const a=new Audio('/voice/'+k+'.mp3'); a.onerror=fallback; try{speechSynthesis.cancel();}catch(e){} const p=a.play(); if(p&&p.catch) p.catch(fallback); }catch(e){ fallback(); }
+  if(!soundOn) return; const t = VOICE[k]; if(!t) return;
+  let fell = false; const fallback = () => { if(fell) return; fell = true; speakLady(t); };
+  try{ const a = new Audio('/voice/'+k+'.mp3'); a.onerror = fallback; try{speechSynthesis.cancel();}catch(e){} const p = a.play(); if(p && p.catch) p.catch(fallback); }catch(e){ fallback(); }
 }
 function toggleTimer(){
   if(tmRun){ clearInterval(tmInt); tmRun=false; $('startBtn').textContent='▶ RESUME SESSION'; $('tstat').textContent='Paused'; return; }
@@ -5128,8 +5170,8 @@ window.addEventListener('online',()=>{ if(apiState==='unknown') retryDetect(); e
     return s;
   }
   function scene() {
-    var syms = ['A', '+', '\u025B', '\u2726', '\u0254', '1'], symHtml = '';
-    syms.forEach(function (t, i) { symHtml += '<text class="ip-sym" x="' + (140 + i * 16) + '" y="318" style="animation-delay:' + (1.05 + i * 0.28).toFixed(2) + 's">' + t + '</text>'; });
+    var syms = ['A', '+', '\u025B', '\u2726'], symHtml = '';
+    syms.forEach(function (t, i) { symHtml += '<text class="ip-sym" x="' + (140 + i * 16) + '" y="318" style="animation-delay:' + (0.95 + i * 0.22).toFixed(2) + 's">' + t + '</text>'; });
     return ''
     + '<svg class="ip-l" viewBox="0 0 360 480" style="transform:translateZ(-110px) scale(1.12)" aria-hidden="true"><defs><radialGradient id="ipSunG" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#fff1a8"/><stop offset=".55" stop-color="#fbbf24"/><stop offset="1" stop-color="#f2a900"/></radialGradient></defs>'
     +   '<g class="ip-sunrise"><g class="ip-rays">' + rays() + '</g><circle cx="180" cy="270" r="72" fill="url(#ipSunG)"/></g>'
@@ -5180,37 +5222,71 @@ window.addEventListener('online',()=>{ if(apiState==='unknown') retryDetect(); e
     + '<svg class="ip-l" viewBox="0 0 360 480" style="transform:translateZ(70px) scale(.94);pointer-events:none" aria-hidden="true"><g fill="#0b6b3a"><path d="M0 480 L6 410 L16 480Z"/><path d="M12 480 L26 396 L36 480Z"/><path d="M30 480 L40 424 L52 480Z"/><path d="M360 480 L354 404 L344 480Z"/><path d="M346 480 L330 420 L322 480Z"/><path d="M326 480 L314 436 L302 480Z"/></g><g fill="#14803f"><path d="M20 480 L34 430 L42 480Z"/><path d="M338 480 L342 424 L330 480Z"/></g></svg>';
   }
 
+  function sceneWith(p) { return scene().replace(/id="(ip[A-Za-z]+)"/g, 'id="$1' + p + '"').replace(/url\(#(ip[A-Za-z]+)\)/g, 'url(#$1' + p + ')'); }
+
+  /* the full-screen scene: plays when "Create account" is tapped, while the account is being made */
   var playing = false;
-  function play() {
-    if (playing) return; playing = true;
-    try { sessionStorage.setItem('ap_intro', '1'); } catch (e) { /* private mode */ }
+  function play(opts) {
+    if (playing) return; playing = true; opts = opts || {};
     var w = document.createElement('div'); w.className = 'ip-wrap'; w.setAttribute('role', 'dialog'); w.setAttribute('aria-label', 'Akwaaba, welcome to Adesua Pa');
-    w.innerHTML = '<button type="button" class="ip-skip">Skip \u203A</button><div class="ip-scene"><div class="ip-stage">' + scene() + '</div></div><div class="ip-title"><b>Adesua <em>Pa</em></b><span>Learn well. Grow far.</span></div>';
+    w.innerHTML = '<button type="button" class="ip-skip">Skip \u203A</button><div class="ip-scene"><div class="ip-stage">' + sceneWith('o') + '</div></div>'
+      + '<div class="ip-title"><b>Adesua <em>Pa</em></b><span>Learn well. Grow far.</span></div>'
+      + '<div class="ip-status" role="status" aria-live="polite">' + (opts.wait ? '<span class="ip-spin"></span><span id="ipStatTxt">Creating your account\u2026</span>' : '') + '</div>';
     document.body.appendChild(w);
-    var ended = false;
+    var t0 = Date.now(), ended = false, MIN = 4700;
     function end() { if (ended) return; ended = true; w.classList.add('out'); setTimeout(function () { w.remove(); playing = false; }, 520); }
+    w.querySelector('.ip-skip').onclick = function (e) { e.stopPropagation(); end(); };
     w.addEventListener('click', end);
-    setTimeout(end, 5600);
+    (function tick() {
+      if (ended) return;
+      var age = Date.now() - t0;
+      if (!opts.wait) { if (age >= 5600) return end(); return void setTimeout(tick, 200); }
+      var m = $id('m-auth'), err = $id('authErr');
+      var failed = err && !err.classList.contains('hide') && err.textContent.trim();
+      var busy = (typeof authBusy !== 'undefined') ? authBusy : false;
+      var ok = m && m.classList.contains('hide');
+      if (failed && !busy) return end();                       // an error (name taken, password too short...) is shown straight away
+      if (ok) { var tx = $id('ipStatTxt'); if (tx) tx.textContent = 'Akwaaba! Your account is ready.'; if (age >= MIN) return end(); }
+      if (age >= 9500) return end();
+      setTimeout(tick, 150);
+    })();
   }
   window.APIntro = { play: play };
 
-  function maybe() {
+  var origAuth = window.doAuth;
+  if (typeof origAuth === 'function') window.doAuth = function () {
     try {
-      if (!document.body.classList.contains('gate')) return;
-      if (sessionStorage.getItem('ap_intro')) return;
-      if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      var go = $id('authGo'); if (!go || !/create/i.test(go.textContent)) return;   // only before the Create account form
-      play();
+      var n = $id('authName'), p = $id('authPass');
+      var busy = (typeof authBusy !== 'undefined') && authBusy;
+      if (!busy && typeof amode !== 'undefined' && amode === 'signup' && n && p && n.value.trim() && p.value) play({ wait: true });
     } catch (e) { /* never block sign-up */ }
+    return origAuth.apply(this, arguments);
+  };
+
+  /* the small scene that lives on the Create account page itself (replays every few seconds) */
+  function mountHero() {
+    try {
+      var m = $id('m-auth'); if (!m || m.querySelector('.gate-hero')) return;
+      var d = document.createElement('div'); d.className = 'gate-hero'; d.setAttribute('aria-hidden', 'true');
+      d.innerHTML = '<div class="ip-scene"><div class="ip-stage">' + sceneWith('h') + '</div></div>';
+      m.insertBefore(d, m.firstChild);
+      setInterval(function () {
+        if (document.hidden || m.classList.contains('hide')) return;
+        var st = d.querySelector('.ip-stage'); if (st) st.innerHTML = sceneWith('h');
+      }, 6400);
+    } catch (e) { /* decoration only */ }
   }
-  function start() {
-    try { new MutationObserver(maybe).observe(document.body, { attributes: true, attributeFilter: ['class'] }); } catch (e) { /* ignore */ }
-    setTimeout(maybe, 400);
-  }
+  function start() { mountHero(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();
 </script>
 
+<script>
+/* Home -> Reels / Courses: opens the Course page on the chosen tab (sign-in is asked for first, as before). */
+window.homeOpen = function (t) {
+  requireAuth(function () { try { FX.setTab(t); } catch (e) { /* tab memory is optional */ } go('online'); });
+};
+</script>
 <script>
 /* Adesua Pa as an installable app: service worker, "Install" banner, and an "Install app" card inside Account + Settings (Chrome / Edge / Android).
    Nothing here changes the rest of the app; every step is wrapped so a failure here can never break the page. */
