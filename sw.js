@@ -1,6 +1,6 @@
 /* Adesua Pa service worker: makes the app installable and lets it open when the network is slow or off.
    It NEVER touches /api (accounts, quizzes, payments always go straight to the server) or other sites. */
-const V = 'adesuapa-v2';
+const V = 'adesuapa-v3';
 const SHELL = ['/', '/manifest.json', '/icons/icon-192.png', '/icons/icon-512.png'];
 
 self.addEventListener('install', (e) => {

@@ -792,7 +792,7 @@ html.rl-lock body.rlbar #bnav,html.rl-lock #bnav{background:#000;border-color:#2
 @keyframes ipBurst{0%{opacity:1;transform:translate(0,0) scale(.4)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.1) rotate(220deg)}}
 @keyframes ipBird{from{transform:translate(-50px,0)}to{transform:translate(430px,-34px)}}
 @keyframes ipTitle{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-@media (prefers-reduced-motion:reduce){.ip-stage,.gate-hero .ip-stage,.ip-rays,.ip-child{animation:none!important}.cf,.ip-bird{display:none}.seat-book,.seat-bar i{animation-duration:.01s}}
+@media (prefers-reduced-motion:reduce){.ip-stage,.gate-hero .ip-stage,.ip-rays,.k-bob,.k-slide{animation:none!important}.cf,.ip-bird,.heart{display:none}.seat-book,.seat-bar i{animation-duration:.01s}}
 
 /* --- 2nd round: site-coloured wordmark, Home cards, sign-up scene on the page --- */
 .lg-book{fill:var(--purple);}
@@ -817,6 +817,26 @@ html.rl-lock body.rlbar #bnav,html.rl-lock #bnav{background:#000;border-color:#2
 .ip-status{position:absolute;left:0;right:0;bottom:calc(3vh + env(safe-area-inset-bottom,0px));display:flex;justify-content:center;align-items:center;gap:8px;color:#fff;font-size:14px;font-weight:600;}
 .ip-spin{width:16px;height:16px;border-radius:50%;border:2.5px solid rgba(255,255,255,.35);border-top-color:#fff;animation:ipSpinner .8s linear infinite;}
 @keyframes ipSpinner{to{transform:rotate(360deg)}}
+
+/* --- two study pals --- */
+.k-slide.walk{animation:kSlide 1.4s cubic-bezier(.25,.8,.3,1) .1s both;} .k-slide.pop{animation:ipPop .7s .2s cubic-bezier(.3,1.4,.5,1) both;}
+.k-bob{transform-origin:180px 446px;animation:ipBob 2.4s 1s ease-in-out infinite;} .k-bob.steps{animation:kStep .35s ease-in-out .15s 4,ipBob 2.4s 1.6s ease-in-out infinite;}
+.k-head{transform-origin:180px 254px;} .k-head.read{animation:kHeadRead 4.2s ease-in-out both;}
+.k-eyes{transform-origin:180px 222px;animation:ipBlink 2.3s 1.1s infinite;} .k-pupils.read{animation:kLookRead 4.2s ease-in-out both;}
+.k-smile{animation:ipSmileOut .01s var(--gd,2s) both;} .k-grin{opacity:0;animation:ipSmileIn .01s var(--gd,2s) both;}
+.k-book{transform-origin:180px 350px;animation:ipBookDown .7s 2.45s ease-in-out both;}
+.k-flip{transform-origin:180px 350px;opacity:0;animation:ipFlip .8s .7s ease-in-out 2;}
+.k-armHold{animation:ipArmReadOut .01s var(--wd,2s) both;}
+.k-armW{opacity:0;transform-origin:210px 278px;animation:ipWave 1.7s var(--wd,2s) ease-in-out both;}
+.ip-bubble{transform-origin:92px 166px;animation:ipBubble .6s 1.8s cubic-bezier(.3,1.5,.5,1) both;}
+.cf{transform-box:fill-box;transform-origin:center;animation-delay:2.85s;}
+.heart{opacity:0;transform-box:fill-box;transform-origin:center;animation:kHeart 1.7s var(--hd,2.8s) ease-out both;}
+.ip-sym{animation-duration:1.3s;}
+@keyframes kSlide{from{transform:translateX(-210px)}to{transform:none}}
+@keyframes kStep{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes kHeadRead{0%{transform:translateY(6px) rotate(5deg)}54%{transform:translateY(6px) rotate(5deg)}64%,100%{transform:none}}
+@keyframes kLookRead{0%{transform:translateY(3px)}54%{transform:translateY(3px)}64%,100%{transform:translateX(-2px)}}
+@keyframes kHeart{0%{opacity:0;transform:translate(0,12px) scale(.3)}20%{opacity:1}100%{opacity:0;transform:translate(var(--hx),-78px) scale(1.05)}}
 </style>
 </head>
 <body>
@@ -5169,6 +5189,78 @@ window.addEventListener('online',()=>{ if(apiState==='unknown') retryDetect(); e
     pts.forEach(function (p, i) { s += (i % 2 ? '<rect class="cf" x="176" y="196" width="8" height="8" rx="2" fill="' + p[2] + '" style="--dx:' + p[0] + 'px;--dy:' + p[1] + 'px"/>' : '<circle class="cf" cx="180" cy="200" r="4.5" fill="' + p[2] + '" style="--dx:' + p[0] + 'px;--dy:' + p[1] + 'px"/>'); });
     return s;
   }
+
+  /* ---- two study pals: one walks in and says Akwaaba, the other looks up from her book and waves back ---- */
+  var HEART = 'M12 21s-7-4.6-9-9.2C1.6 8 4 5 7 5c2 0 3.6 1.1 5 3 1.4-1.9 3-3 5-3 3 0 5.4 3 4 6.8-2 4.6-9 9.2-9 9.2z';
+  function kid(c) {
+    var u = c.id, s = c.s, ty = (446 * (1 - s)).toFixed(1), tx = (c.flip ? c.cx + 180 * s : c.cx - 180 * s).toFixed(1), sx = c.flip ? -s : s, sk = c.skin, boy = c.type === 'boy';
+    var defs = '<radialGradient id="ipSkin' + u + '" cx="38%" cy="30%" r="78%"><stop offset="0" stop-color="' + sk.a + '"/><stop offset=".6" stop-color="' + sk.b + '"/><stop offset="1" stop-color="' + sk.c + '"/></radialGradient>'
+      + '<radialGradient id="ipHair' + u + '" cx="40%" cy="28%" r="80%"><stop offset="0" stop-color="#40302a"/><stop offset="1" stop-color="#140d0b"/></radialGradient>'
+      + '<linearGradient id="ipDress' + u + '" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="' + c.cloth[0] + '"/><stop offset=".55" stop-color="' + c.cloth[1] + '"/><stop offset="1" stop-color="' + c.cloth[2] + '"/></linearGradient>';
+    var body = '';
+    if (!boy) {
+      body += '<rect x="163" y="380" width="14" height="60" rx="7" fill="' + sk.c + '"/><rect x="185" y="380" width="14" height="60" rx="7" fill="' + sk.c + '"/>'
+        + '<ellipse cx="168" cy="442" rx="16" ry="7.5" fill="#f2a900"/><ellipse cx="194" cy="442" rx="16" ry="7.5" fill="#f2a900"/>'
+        + '<path d="M146 268 Q180 258 214 268 L234 394 Q180 410 126 394Z" fill="url(#ipDress' + u + ')"/>'
+        + '<path d="M128 390 Q180 406 232 390" fill="none" stroke="#f2a900" stroke-width="7" stroke-linecap="round"/>'
+        + '<path d="M166 290 Q172 340 160 388" fill="none" stroke="#fff" stroke-opacity=".12" stroke-width="6" stroke-linecap="round"/>';
+    } else {
+      body += '<rect x="163" y="392" width="14" height="48" rx="7" fill="' + sk.c + '"/><rect x="185" y="392" width="14" height="48" rx="7" fill="' + sk.c + '"/>'
+        + '<ellipse cx="168" cy="442" rx="17" ry="8" fill="#fbf6ea"/><ellipse cx="194" cy="442" rx="17" ry="8" fill="#fbf6ea"/><path d="M152 446 H184 M178 446 H210" stroke="#0b6b3a" stroke-width="3" stroke-linecap="round"/>'
+        + '<path d="M142 354 L220 354 L226 404 L188 410 L180 384 L172 410 L134 404Z" fill="#0b6b3a"/>'
+        + '<path d="M148 268 Q180 258 212 268 L222 362 Q180 372 138 362Z" fill="url(#ipDress' + u + ')"/>'
+        + '<path d="M140 358 Q180 370 220 358" fill="none" stroke="#fbf6ea" stroke-width="4" stroke-linecap="round" opacity=".7"/>'
+        + '<circle cx="204" cy="300" r="8" fill="#0b6b3a"/><circle cx="204" cy="300" r="4" fill="#f2a900"/>';
+    }
+    body += '<rect x="170" y="248" width="20" height="26" rx="9" fill="' + sk.c + '"/>'
+      + '<path d="M158 266 Q180 298 202 266" fill="none" stroke="' + (boy ? '#0b6b3a' : '#f2a900') + '" stroke-width="7" stroke-linecap="round"/>';
+    if (c.read) {      // open book held at the chest
+      body += '<g class="k-book"><path d="M116 328 Q150 316 180 332 Q210 316 244 328 L244 384 Q210 370 180 386 Q150 370 116 384Z" fill="#07502b"/>'
+        + '<path d="M124 322 Q152 312 180 326 L180 376 Q152 364 124 374Z" fill="#fbf6ea" stroke="#e2d8bd" stroke-width="1.5"/><path d="M236 322 Q208 312 180 326 L180 376 Q208 364 236 374Z" fill="#fbf6ea" stroke="#e2d8bd" stroke-width="1.5"/>'
+        + '<path d="M134 336 Q152 332 170 340 M134 346 Q152 342 170 350 M134 356 Q152 352 170 360 M190 340 Q208 332 226 336 M190 350 Q208 342 226 346" fill="none" stroke="#c9bd9a" stroke-width="2" stroke-linecap="round"/>'
+        + '<path class="k-flip" d="M180 326 Q208 312 236 322 L236 374 Q208 364 180 376Z" fill="#fbf6ea" stroke="#e2d8bd" stroke-width="1.5"/><path d="M180 326 V378" stroke="#d9cfae" stroke-width="2"/></g>';
+    } else {           // a closed book under the arm
+      body += '<g transform="rotate(-10 158 346)"><rect x="140" y="318" width="38" height="48" rx="4" fill="#f2a900"/><rect x="144" y="318" width="5" height="48" fill="#0b6b3a"/><rect x="154" y="328" width="17" height="3.5" rx="1.7" fill="#fbf6ea"/><rect x="154" y="336" width="12" height="3.5" rx="1.7" fill="#fbf6ea"/></g>';
+    }
+    body += '<path d="M150 276 Q126 312 156 340" fill="none" stroke="' + sk.b + '" stroke-width="15" stroke-linecap="round"/><circle cx="158" cy="342" r="9" fill="' + sk.b + '"/>';
+    body += c.read
+      ? '<g class="k-armHold"><path d="M210 276 Q234 312 204 340" fill="none" stroke="' + sk.b + '" stroke-width="15" stroke-linecap="round"/><circle cx="202" cy="342" r="9" fill="' + sk.b + '"/></g>'
+      : '<g class="k-armHold"><path d="M210 276 Q224 316 220 346" fill="none" stroke="' + sk.b + '" stroke-width="15" stroke-linecap="round"/><circle cx="220" cy="350" r="9" fill="' + sk.b + '"/></g>';
+    body += '<g class="k-armW"><path d="M210 278 L226 336" fill="none" stroke="' + sk.b + '" stroke-width="15" stroke-linecap="round"/><circle cx="227" cy="340" r="10" fill="' + sk.b + '"/></g>';
+    var head = '<g class="k-head' + (c.read ? ' read' : '') + '">';
+    if (!boy) {
+      head += '<g fill="url(#ipHair' + u + ')"><circle cx="180" cy="176" r="38"/><circle cx="144" cy="190" r="24"/><circle cx="216" cy="190" r="24"/><circle cx="138" cy="158" r="19"/><circle cx="222" cy="158" r="19"/></g>'
+        + '<rect x="128" y="168" width="20" height="7" rx="3" fill="#f2a900" transform="rotate(-24 138 171)"/><rect x="212" y="168" width="20" height="7" rx="3" fill="#f2a900" transform="rotate(24 222 171)"/>';
+    } else {
+      head += '<circle cx="180" cy="190" r="39" fill="url(#ipHair' + u + ')"/>';
+    }
+    head += '<circle cx="180" cy="220" r="40" fill="url(#ipSkin' + u + ')"/>'
+      + '<path d="M142 206 Q146 176 180 172 Q214 176 218 206 Q198 192 180 192 Q162 192 142 206Z" fill="url(#ipHair' + u + ')"/>'
+      + (boy ? '' : '<path d="M146 168 Q180 156 214 168" fill="none" stroke="#f2a900" stroke-width="6" stroke-linecap="round"/>')
+      + '<g class="k-eyes"><ellipse cx="165" cy="222" rx="7" ry="8" fill="#fff"/><ellipse cx="195" cy="222" rx="7" ry="8" fill="#fff"/>'
+      + '<g class="k-pupils' + (c.read ? ' read' : '') + '"><circle cx="166" cy="223" r="4.3" fill="#2a1a14"/><circle cx="196" cy="223" r="4.3" fill="#2a1a14"/><circle cx="167.6" cy="221" r="1.4" fill="#fff"/><circle cx="197.6" cy="221" r="1.4" fill="#fff"/></g></g>'
+      + '<path d="M157 209 Q165 205 173 209 M187 209 Q195 205 203 209" fill="none" stroke="#2a1a14" stroke-width="2.6" stroke-linecap="round"/>'
+      + '<ellipse cx="180" cy="234" rx="5" ry="3.4" fill="' + sk.c + '"/><circle cx="150" cy="238" r="7" fill="#c0764a" opacity=".3"/><circle cx="210" cy="238" r="7" fill="#c0764a" opacity=".3"/>'
+      + '<path class="k-smile" d="M169 244 Q180 252 191 244" fill="none" stroke="#3a1a12" stroke-width="3" stroke-linecap="round"/>'
+      + '<g class="k-grin"><path d="M164 242 Q180 266 196 242Z" fill="#3a1a12"/><path d="M168 243 Q180 249 192 243 L190 246 Q180 251 170 246Z" fill="#fff"/><path d="M174 257 Q180 253 186 257 Q180 262 174 257Z" fill="#c24a4a"/></g></g>';
+    var out = '<g class="kid" transform="translate(' + tx + ' ' + ty + ') scale(' + sx + ' ' + s + ')" style="--wd:' + c.wd + ';--gd:' + c.gd + '">'
+      + '<ellipse cx="180" cy="446" rx="66" ry="11" fill="#000" opacity=".3"/>'
+      + '<g class="k-slide ' + (c.walk ? 'walk' : 'pop') + '"><g class="k-bob' + (c.walk ? ' steps' : '') + '">' + body + head + '</g></g></g>';
+    return { defs: defs, out: out };
+  }
+  function kidsLayer() {
+    var A = kid({ id: 'a', cx: 104, s: 0.8, type: 'girl', walk: true, read: false, wd: '1.8s', gd: '1.75s', skin: { a: '#a8704a', b: '#7a4a2e', c: '#5c3520' }, cloth: ['#14935a', '#0b6b3a', '#07502b'] });
+    var B = kid({ id: 'b', cx: 256, s: 0.8, type: 'boy', flip: true, read: true, wd: '2.6s', gd: '2.55s', skin: { a: '#8a5538', b: '#5e3a25', c: '#43271a' }, cloth: ['#ffc533', '#f2a900', '#c98a00'] });
+    var hearts = '', hs = [[-26, '#f43f5e', 2.75], [2, '#f2a900', 2.9], [26, '#c026d3', 3.05], [-10, '#f43f5e', 3.2], [14, '#f2a900', 3.35]];
+    hs.forEach(function (p, i) { hearts += '<g class="heart" style="--hx:' + p[0] + 'px;--hd:' + p[2] + 's"><path transform="translate(' + (168 + p[0] * 0.6) + ' ' + (226 - (i % 2) * 10) + ') scale(1.05)" d="' + HEART + '" fill="' + p[1] + '"/></g>'; });
+    var syms = ['A', '+', '\u025B', '\u2726'], sy = '';
+    syms.forEach(function (t, i) { sy += '<text class="ip-sym" x="' + (306 + i * 13) + '" y="330" style="animation-delay:' + (0.7 + i * 0.22).toFixed(2) + 's">' + t + '</text>'; });
+    return '<svg class="ip-l" viewBox="0 0 360 480" role="img" aria-label="Two study pals: one welcomes the other with Akwaaba"><defs>' + A.defs + B.defs
+      + '<linearGradient id="ipGround" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#14803f"/><stop offset="1" stop-color="#07502b"/></linearGradient></defs>'
+      + '<path d="M0 418 Q180 392 360 418 V480 H0Z" fill="url(#ipGround)"/>' + A.out + B.out + sy
+      + '<g class="ip-bubble"><rect x="40" y="48" width="154" height="58" rx="24" fill="#fff"/><path d="M70 102 L102 102 L92 166Z" fill="#fff"/><text x="117" y="86" text-anchor="middle" font-family="Poppins,system-ui,sans-serif" font-size="23" font-weight="700" fill="#0b6b3a">Akwaaba!</text></g>'
+      + hearts + confetti() + '</svg>';
+  }
   function scene() {
     var syms = ['A', '+', '\u025B', '\u2726'], symHtml = '';
     syms.forEach(function (t, i) { symHtml += '<text class="ip-sym" x="' + (140 + i * 16) + '" y="318" style="animation-delay:' + (0.95 + i * 0.22).toFixed(2) + 's">' + t + '</text>'; });
@@ -5179,46 +5271,7 @@ window.addEventListener('online',()=>{ if(apiState==='unknown') retryDetect(); e
     + '<svg class="ip-l" viewBox="0 0 360 480" style="transform:translateZ(-60px) scale(1.06)" aria-hidden="true"><path d="M0 338 Q70 286 140 326 T260 312 T360 326 V480 H0Z" fill="#4c1d95"/></svg>'
     + '<svg class="ip-l" viewBox="0 0 360 480" style="transform:translateZ(-30px) scale(1.03)" aria-hidden="true"><path d="M0 384 Q90 336 180 376 T360 364 V480 H0Z" fill="#0f5a33"/>'
     +   '<g fill="#0a3d23"><path d="M58 372 L60 330 L64 372Z"/><path d="M62 336 L50 322 L52 318 L63 328 L74 316 L77 320Z"/><ellipse cx="62" cy="312" rx="38" ry="11"/><ellipse cx="44" cy="318" rx="20" ry="7"/><ellipse cx="82" cy="318" rx="20" ry="7"/></g></svg>'
-    + '<svg class="ip-l" viewBox="0 0 360 480" aria-label="A child reading a book, then waving" role="img"><defs>'
-    +   '<radialGradient id="ipSkin" cx="38%" cy="30%" r="78%"><stop offset="0" stop-color="#a8704a"/><stop offset=".6" stop-color="#7a4a2e"/><stop offset="1" stop-color="#5c3520"/></radialGradient>'
-    +   '<radialGradient id="ipHair" cx="40%" cy="28%" r="80%"><stop offset="0" stop-color="#40302a"/><stop offset="1" stop-color="#140d0b"/></radialGradient>'
-    +   '<linearGradient id="ipDress" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#14935a"/><stop offset=".55" stop-color="#0b6b3a"/><stop offset="1" stop-color="#07502b"/></linearGradient>'
-    +   '<linearGradient id="ipGround" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#14803f"/><stop offset="1" stop-color="#07502b"/></linearGradient></defs>'
-    +   '<path d="M0 418 Q180 392 360 418 V480 H0Z" fill="url(#ipGround)"/>'
-    +   '<ellipse cx="180" cy="446" rx="66" ry="11" fill="#000" opacity=".3"/>'
-    +   '<g class="ip-child">'
-    +     '<rect x="163" y="380" width="14" height="60" rx="7" fill="#5c3520"/><rect x="185" y="380" width="14" height="60" rx="7" fill="#5c3520"/>'
-    +     '<ellipse cx="168" cy="442" rx="16" ry="7.5" fill="#f2a900"/><ellipse cx="194" cy="442" rx="16" ry="7.5" fill="#f2a900"/>'
-    +     '<path d="M146 268 Q180 258 214 268 L234 394 Q180 410 126 394Z" fill="url(#ipDress)"/>'
-    +     '<path d="M128 390 Q180 406 232 390" fill="none" stroke="#f2a900" stroke-width="7" stroke-linecap="round"/>'
-    +     '<path d="M166 290 Q172 340 160 388" fill="none" stroke="#fff" stroke-opacity=".12" stroke-width="6" stroke-linecap="round"/>'
-    +     '<rect x="170" y="248" width="20" height="26" rx="9" fill="#5c3520"/>'
-    +     '<path d="M158 266 Q180 298 202 266" fill="none" stroke="#f2a900" stroke-width="7" stroke-linecap="round"/>'
-    +     '<g class="ip-book"><path d="M116 328 Q150 316 180 332 Q210 316 244 328 L244 384 Q210 370 180 386 Q150 370 116 384Z" fill="#07502b"/>'
-    +       '<path d="M124 322 Q152 312 180 326 L180 376 Q152 364 124 374Z" fill="#fbf6ea" stroke="#e2d8bd" stroke-width="1.5"/><path d="M236 322 Q208 312 180 326 L180 376 Q208 364 236 374Z" fill="#fbf6ea" stroke="#e2d8bd" stroke-width="1.5"/>'
-    +       '<path d="M134 336 Q152 332 170 340 M134 346 Q152 342 170 350 M134 356 Q152 352 170 360 M190 340 Q208 332 226 336 M190 350 Q208 342 226 346" fill="none" stroke="#c9bd9a" stroke-width="2" stroke-linecap="round"/>'
-    +       '<path class="ip-flip" d="M180 326 Q208 312 236 322 L236 374 Q208 364 180 376Z" fill="#fbf6ea" stroke="#e2d8bd" stroke-width="1.5"/>'
-    +       '<path d="M180 326 V378" stroke="#d9cfae" stroke-width="2"/>' + symHtml + '</g>'
-    +     '<path d="M150 276 Q126 312 156 340" fill="none" stroke="#7a4a2e" stroke-width="15" stroke-linecap="round"/><circle cx="158" cy="342" r="9" fill="#7a4a2e"/>'
-    +     '<g class="ip-armR"><path d="M210 276 Q234 312 204 340" fill="none" stroke="#7a4a2e" stroke-width="15" stroke-linecap="round"/><circle cx="202" cy="342" r="9" fill="#7a4a2e"/></g>'
-    +     '<g class="ip-armW"><path d="M210 278 L226 336" fill="none" stroke="#7a4a2e" stroke-width="15" stroke-linecap="round"/><circle cx="227" cy="340" r="10" fill="#7a4a2e"/></g>'
-    +     '<g class="ip-head">'
-    +       '<g fill="url(#ipHair)"><circle cx="180" cy="176" r="38"/><circle cx="144" cy="190" r="24"/><circle cx="216" cy="190" r="24"/><circle cx="138" cy="158" r="19"/><circle cx="222" cy="158" r="19"/></g>'
-    +       '<rect x="128" y="168" width="20" height="7" rx="3" fill="#f2a900" transform="rotate(-24 138 171)"/><rect x="212" y="168" width="20" height="7" rx="3" fill="#f2a900" transform="rotate(24 222 171)"/>'
-    +       '<circle cx="180" cy="220" r="40" fill="url(#ipSkin)"/>'
-    +       '<path d="M142 206 Q146 176 180 172 Q214 176 218 206 Q198 192 180 192 Q162 192 142 206Z" fill="url(#ipHair)"/>'
-    +       '<path d="M146 168 Q180 156 214 168" fill="none" stroke="#f2a900" stroke-width="6" stroke-linecap="round"/>'
-    +       '<g class="ip-eyes"><ellipse cx="165" cy="222" rx="7" ry="8" fill="#fff"/><ellipse cx="195" cy="222" rx="7" ry="8" fill="#fff"/>'
-    +         '<g class="ip-pupils"><circle cx="166" cy="223" r="4.3" fill="#2a1a14"/><circle cx="196" cy="223" r="4.3" fill="#2a1a14"/><circle cx="167.6" cy="221" r="1.4" fill="#fff"/><circle cx="197.6" cy="221" r="1.4" fill="#fff"/></g></g>'
-    +       '<path d="M157 209 Q165 205 173 209 M187 209 Q195 205 203 209" fill="none" stroke="#2a1a14" stroke-width="2.6" stroke-linecap="round"/>'
-    +       '<ellipse cx="180" cy="234" rx="5" ry="3.4" fill="#5c3520"/><circle cx="150" cy="238" r="7" fill="#c0764a" opacity=".35"/><circle cx="210" cy="238" r="7" fill="#c0764a" opacity=".35"/>'
-    +       '<path class="ip-smile" d="M169 244 Q180 252 191 244" fill="none" stroke="#3a1a12" stroke-width="3" stroke-linecap="round"/>'
-    +       '<g class="ip-grin"><path d="M164 242 Q180 266 196 242Z" fill="#3a1a12"/><path d="M168 243 Q180 249 192 243 L190 246 Q180 251 170 246Z" fill="#fff"/><path d="M174 257 Q180 253 186 257 Q180 262 174 257Z" fill="#c24a4a"/></g>'
-    +     '</g>'
-    +   '</g>'
-    +   '<g class="ip-bubble"><rect x="206" y="52" width="150" height="60" rx="24" fill="#fff"/><path d="M226 108 L212 136 L250 108Z" fill="#fff"/><text x="281" y="90" text-anchor="middle" font-family="Poppins,system-ui,sans-serif" font-size="23" font-weight="700" fill="#0b6b3a">Akwaaba!</text></g>'
-    +   confetti()
-    + '</svg>'
+    + kidsLayer()
     + '<svg class="ip-l" viewBox="0 0 360 480" style="transform:translateZ(70px) scale(.94);pointer-events:none" aria-hidden="true"><g fill="#0b6b3a"><path d="M0 480 L6 410 L16 480Z"/><path d="M12 480 L26 396 L36 480Z"/><path d="M30 480 L40 424 L52 480Z"/><path d="M360 480 L354 404 L344 480Z"/><path d="M346 480 L330 420 L322 480Z"/><path d="M326 480 L314 436 L302 480Z"/></g><g fill="#14803f"><path d="M20 480 L34 430 L42 480Z"/><path d="M338 480 L342 424 L330 480Z"/></g></svg>';
   }
 
