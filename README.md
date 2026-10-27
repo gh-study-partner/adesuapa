@@ -50,10 +50,9 @@ Open the dashboard from **Me** after logging in with the admin name and password
 
 On Chrome (Android or computer) an **Install Adesua Pa** banner appears a few seconds after a student signs in, and a purple **Get the Adesua Pa app** card sits at the top of **Account** (and in Settings) until the app is installed; Chrome's address-bar install icon and the ⋮ menu → *Install app* work too. The installed app opens full-screen from the home screen. Accounts, quizzes and payments still need internet. To release an update, just redeploy — the app picks up the newest version the next time it opens with a connection.
 
-## Akwaaba, voice and the welcome scene
+## Akwaaba and the study timer voice
 
 - **Welcome text** is *Akwaaba* (Akan) everywhere.
 - **Home** shows two cards, **Reels** and **Courses**. **Activity** is just the timetable.
 - **Study timer voice:** English, an African female voice (Nigerian, Ghanaian, South African or Kenyan English if the phone has one). Add `voice/start.mp3` and `voice/pomo.mp3` to use a real recording instead. See `voice/README.txt`.
 - **Library:** tapping a book shows *Taking a seat…*, then opens My Desk. *Return to shelf* cancels.
-- **Create account:** a small animated scene (two study pals: one walks in and says “Akwaaba!”, the other looks up from her book and waves back) plays on the page, and a full-screen version plays while the account is being created. Students can tap *Skip*.
