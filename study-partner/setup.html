@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Study Partner — setup check</title>
+<style>
+:root{--bg:#fff;--card:#f8f5fe;--text:#231a3a;--muted:#6a6382;--border:#e6def7;--purple:#6d28d9;--grad:linear-gradient(135deg,#5b21b6,#c026d3 58%,#f43f5e)}
+@media (prefers-color-scheme:dark){:root{--bg:#150f24;--card:#1f1736;--text:#f1eefb;--muted:#a79fc4;--border:#352b52;--purple:#c4a6ff}}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.6}
+main{max-width:640px;margin:0 auto;padding:28px 18px 60px}
+h1{font-size:26px;margin:0 0 4px;letter-spacing:-.02em} p.sub{color:var(--muted);margin:0 0 20px}
+.box{border-radius:18px;padding:18px 20px;margin:0 0 16px;border:1px solid var(--border);background:var(--card)}
+.ok{background:#e8f7ee;border-color:#b7e4c7;color:#14532d} .bad{background:#fde8e8;border-color:#f5b5b5;color:#7a1212} .wait{color:var(--muted)}
+.box h2{margin:0 0 6px;font-size:19px} ol{margin:8px 0 0 20px;padding:0} li{margin:7px 0}
+code{background:rgba(109,40,217,.12);padding:1px 6px;border-radius:6px;font-size:.92em;word-break:break-all}
+a.btn{display:inline-block;background:var(--grad);color:#fff;text-decoration:none;font-weight:700;border-radius:20px;padding:10px 18px;margin-top:10px}
+small{color:var(--muted)}
+</style></head><body><main>
+<h1>Setup check</h1><p class="sub">Tells you in plain words whether accounts, ads and photos are shared between phones.</p>
+<div id="out" class="box wait">Checking your site…</div>
+<div id="more"></div>
+<script>
+const out=document.getElementById('out'), more=document.getElementById('more');
+const steps=`<ol>
+<li>Open <b>vercel.com</b> → your <b>study-partner</b> project → the <b>Storage</b> tab.</li>
+<li>Tap <b>Create Database</b> (or <b>Browse Marketplace</b>) → choose <b>Upstash</b> → <b>Redis</b> → pick the <b>Free</b> plan → <b>Create</b>.</li>
+<li>When asked, <b>connect it to this project</b> for all environments (Production, Preview, Development). Leave the names as they are.</li>
+<li>Go to <b>Deployments</b> → the newest one → the <b>⋯</b> menu → <b>Redeploy</b>. <i>(Important: settings only reach the site after a redeploy.)</i></li>
+<li>Come back to this page and refresh. It should turn green.</li></ol>`;
+(async()=>{
+  let j=null;
+  try{ const r=await fetch('/api?a=health',{cache:'no-store'}); j=await r.json(); }catch(e){}
+  if(!j||!j.ok){
+    out.className='box bad'; out.innerHTML='<h2>❌ The server file is not running</h2><p>The file <code>server.js</code> is missing from your GitHub repo, or the newest deployment failed. In GitHub, the first page of the repo must list these files <b>loose, at the top</b>: <code>server.js</code>, <code>index.html</code>, <code>setup.html</code>, <code>vercel.json</code>, <code>package.json</code>. Upload them, then wait for Vercel to show <b>Ready</b> on the newest deployment.</p>'; return;
+  }
+  const names=(j.envNames||[]).length?'<p><small>Storage settings this site can see: '+j.envNames.map(n=>'<code>'+n+'</code>').join(' ')+'</small></p>':'<p><small>This site can see no storage settings at all.</small></p>';
+  if(j.ready&&j.redis&&j.works){
+    out.className='box ok'; out.innerHTML='<h2>✅ Shared storage is ON</h2><p>Accounts, ads and day photos are now saved in the cloud and show on every phone and account.</p>';
+    more.innerHTML='<div class="box wait" id="sx">Testing the search engine…</div><div class="box"><h2>Now do these 3 things</h2><ol><li>Open the site, sign in as admin and <b>change the admin name and password</b> (Admin login tab).</li><li>In the admin dashboard, if you see a green <b>“Move them to the shared database”</b> button, tap it — it moves the ads and photos you made earlier on that phone.</li><li>Students who already made accounts on their phones: they just <b>log in once</b> and their account moves online automatically.</li></ol><a class="btn" href="/">Open Study Partner</a></div>';
+    try{ const t0=Date.now(), r=await fetch('/api?a=sx&sa=web&q='+encodeURIComponent('what is photosynthesis')), d=await r.json(), el=document.getElementById('sx'); if(d&&Array.isArray(d.results)&&(d.answer||d.results.length)){ el.className='box ok'; el.innerHTML='<h2>✅ Search engine works</h2><p>Answered in '+((Date.now()-t0)/1000).toFixed(1)+' s using '+(d.meta&&d.meta.pagesRead||0)+' pages and '+(d.results.length)+' results.</p>'; } else throw new Error('empty'); }catch(e){ const el=document.getElementById('sx'); if(el){ el.className='box bad'; el.innerHTML='<h2>⚠️ Search engine did not answer</h2><p>Students will still get Wikipedia results. Open the admin dashboard → Search tab → “Test the engine” to see which sources are blocked.</p>'; } }
+  } else if(j.redis&&!j.works){
+    out.className='box bad'; out.innerHTML='<h2>⚠️ Storage is connected but is refusing the site</h2><p>'+(j.error?('Message: <code>'+j.error+'</code>'):'')+'</p><p>Disconnect the database from the project and connect it again, then redeploy.</p>'+names; more.innerHTML='<div class="box"><h2>Steps</h2>'+steps+'</div>';
+  } else {
+    out.className='box bad'; out.innerHTML='<h2>❌ Shared storage is NOT connected</h2><p>That is why accounts, ads and photos only show on the phone that made them. It is a free, 2-minute fix:</p>'+names; more.innerHTML='<div class="box"><h2>Steps</h2>'+steps+'</div>';
+  }
+})();
+</script></main></body></html>
