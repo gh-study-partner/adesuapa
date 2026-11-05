@@ -1,9 +1,9 @@
 'use strict';
-// Adesua Pa — the whole server in ONE file (accounts, ads, photos, YouTube, news and the search engine).
+// Study Partner — the whole server in ONE file (accounts, ads, photos, YouTube, news and the search engine).
 const __M = {};
 __M.engine = (function () {
 const module = { exports: {} }; const exports = module.exports;
-// Adesua Pa search engine — no API keys, no dependencies.
+// Study Partner search engine — no API keys, no dependencies.
 // Pipeline (like a small Google): retrieve from several public sources -> fuse + re-rank -> read the best pages
 // -> pick the sentences that actually answer the question -> cite sources. A knowledge base (Upstash Redis)
 // remembers what it learned and a daily job (api/cron.js) keeps learning from the internet.
@@ -749,14 +749,14 @@ return module.exports;
 })();
 __M.search = (function () {
 const module = { exports: {} }; const exports = module.exports;
-// Adesua Pa search API — /api/search?a=web|read|suggest|home|diag
+// Study Partner search API — /api/search?a=web|read|suggest|home|diag
 const E = __M.engine;
 const hits = new Map();
 function limited(ip, bucket, max) {
   const k = bucket + ':' + ip, now = Date.now(), h = (hits.get(k) || []).filter((t) => now - t < 600000);
   if (h.length >= max) return true; h.push(now); hits.set(k, h); if (hits.size > 8000) hits.clear(); return false;
 }
-const send = (res, code, obj, cache) => { res.statusCode = code; res.setHeader('X-Content-Type-Options', 'nosniff'); res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin'); res.setHeader('Content-Type', 'application/json; charset=utf-8'); res.setHeader('Cache-Control', cache || 'no-store'); res.end(JSON.stringify(obj)); };
+const send = (res, code, obj, cache) => { res.statusCode = code; res.setHeader('Content-Type', 'application/json; charset=utf-8'); res.setHeader('Cache-Control', cache || 'no-store'); res.end(JSON.stringify(obj)); };
 module.exports = async (req, res, override) => {
   try {
     const q = override || req.query || Object.fromEntries(new URL(req.url, 'http://x').searchParams);
@@ -795,13 +795,13 @@ return module.exports;
 __M.features = (function () {
 const module = { exports: {} }; const exports = module.exports;
 'use strict';
-// Adesua Pa — newer features, kept apart from the older server code:
+// Study Partner — newer features, kept apart from the older server code:
 //   reels (feed, likes, comments, who may post) · online courses (admin-built, optional certificate)
 //   account data sync (courses, notes, progress — not the uploaded files) · PASCO answers found on the web
 // index.js passes in its helpers and calls handle(a, body, q, t). Returns null if the action is not ours,
 // otherwise { code, obj, cache } for index.js to send.
 module.exports = function make(C) {
-  const { kv, verify, needAdmin, needUser, bad, nameKey, cleanName, putImg, IMG_RE, crypto, rateCheck, saveUser, engine } = C;
+  const { kv, verify, needAdmin, needUser, bad, nameKey, cleanName, putImg, IMG_RE, crypto, rateCheck, saveUser, engine, hall } = C;
   // Everything new lives under its own "sp2:" key names, so it can never collide with (or be broken by) other data in a shared database.
   const K = { reels: 'sp2:reels', oc: 'sp2:oc', ud: 'sp2:ud', rlu: (k) => 'sp2:rlu:' + k, rcm: (i) => 'sp2:rcm:' + i, rv: (i) => 'sp2:rv:' + i };
   async function readAll(key) { const flat = (await kv(['HGETALL', key])) || [], out = []; for (let i = 0; i + 1 < flat.length; i += 2) { try { const v = JSON.parse(flat[i + 1]); if (v && typeof v === 'object') out.push(v); } catch (e) { /* skip anything that is not ours */ } } return out; }
@@ -810,7 +810,7 @@ module.exports = function make(C) {
   const rid = (p) => p + Date.now().toString(36) + crypto.randomBytes(3).toString('hex');
   const ok = (obj, cache) => ({ code: 200, obj, cache });
   const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36';
-  const MAXCH = 26, CH = 375000, CAP = 2600000, VTYPES = ['video/mp4', 'video/webm', 'video/quicktime'];
+  const MAXCH = 26, CH = 375000, CAP = 1125000, LIFE = 30 * 86400000, VTYPES = ['video/mp4', 'video/webm', 'video/quicktime'];
   const ttId = (u) => { const m = String(u || '').match(/tiktok\.com\/(?:@[\w.\-]+\/)?(?:video|embed\/v2|embed)\/(\d{8,25})/i); return m ? m[1] : ''; };
   const isTikTok = (u) => { try { return /(^|\.)tiktok\.com$/i.test(new URL(u).hostname); } catch (e) { return false; } };
   async function resolveTikTok(link) { // vm.tiktok.com / vt.tiktok.com short links: follow the redirects (TikTok hosts only) to find the video number
@@ -822,6 +822,13 @@ module.exports = function make(C) {
       u = new URL(loc, u).href;
     }
     return ttId(u);
+  }
+  // Reels (and their pictures, videos, comments) disappear 30 days after they are posted.
+  const alive = (r) => r && r.ts && Date.now() - r.ts < LIFE;
+  async function sweepReels() {
+    if (await rateCheck('sp2:sweep', 1, 3600)) return; // at most once an hour
+    const all = await readAll(K.reels);
+    for (const r of all) if (!alive(r)) { await kv(['HDEL', K.reels, r.id]); await kv(['HDEL', 'imgs', 'reel_' + r.id]); await kv(['DEL', K.rv(r.id)]); await kv(['DEL', K.rcm(r.id)]); }
   }
   const ytId = (u) => { const m = String(u || '').match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([\w-]{11})/); return m ? m[1] : ''; };
 
@@ -836,8 +843,8 @@ module.exports = function make(C) {
 
   /* ---------------- reels ---------------- */
   const pubReel = (r, me, liked) => ({
-    id: r.id, by: r.byName, byAdmin: !!r.admin, kind: r.kind, yt: r.yt || '', tt: r.tt || '', link: r.link || '', vid: r.vid ? '/api?a=reelvid&id=' + r.id : '', vtype: r.vtype || '', caption: r.caption || '', ts: r.ts,
-    img: r.img ? '/api?a=img&id=reel_' + r.id + '&v=' + r.ts : '', pics: r.img && r.pics ? Array.from({ length: r.pics + 1 }, (_, i) => '/api?a=img&id=reel_' + r.id + (i ? '_' + i : '') + '&v=' + r.ts) : [], likes: r.likes || 0, comments: r.comments || 0, liked: !!liked,
+    id: r.id, by: r.byName, byAdmin: !!r.admin, kind: r.kind, yt: r.yt || '', av: r.admin ? '' : '/api?a=avatar&k=' + encodeURIComponent(r.by), tt: r.tt || '', link: r.link || '', vid: r.vid ? '/api?a=reelvid&id=' + r.id : '', vtype: r.vtype || '', caption: r.caption || '', ts: r.ts,
+    img: r.img ? '/api?a=img&id=reel_' + r.id + '&v=' + r.ts : '', likes: r.likes || 0, comments: r.comments || 0, liked: !!liked,
     mine: !!(me && (me.isAdmin || me.key === r.by))
   });
 
@@ -867,84 +874,22 @@ module.exports = function make(C) {
     cover: c.cover ? '/api?a=img&id=occ_' + c.id + '&v=' + c.ts : '', lessons: c.lessons.length, ts: c.ts });
 
   /* ---------------- account data sync ---------------- */
-  const NT = 'sp2:nt', NTR = (k) => 'sp2:ntr:' + k, UX = 'sp2:ux', QZ = 'sp2:qz', QZR = (i) => 'sp2:qzr:' + i;
   const SYNC_KEYS = ['sp_courses', 'sp_pasco', 'sp_progress', 'sp_ocprog', 'sp_notebooks'];
   const SYNC_MAX_KEY = 700000, SYNC_MAX_ALL = 1500000;
 
+  const KC = { cm: (i) => 'sp2:cm:' + i, cvi: (k) => 'sp2:cvi:' + k, st: 'sp2:st' };
+  // Ads that are live right now (an ad drops out the moment its time is up). Used by stories and the reels feed.
+  async function liveAds() {
+    const now = Date.now();
+    return (await hall('ads')).filter((x) => x && x.status === 'live' && (!x.expiresAt || x.expiresAt > now)).map((x) => ({ id: 'ad_' + x.id, biz: x.biz, yt: x.kind === 'video' ? ytId(x.link) : '', tt: x.kind === 'video' ? ttId(x.link) : '', img: x.kind === 'flyer' ? '/api?a=img&id=ad_' + x.id + '&v=' + (x.liveAt || 1) : '', wa: x.wa || '', exp: x.expiresAt || 0 })).filter((x) => x.yt || x.tt || x.img);
+  }
   async function run(a, body, q, t, req) {
     switch (a) {
       /* ===== reels ===== */
-
-      /* ===== notifications (sent by the admin) ===== */
-      case 'notifSend': {
-        needAdmin(t); const title = s(body.title, 80).trim(), text = s(body.body, 600).trim(); if (!title) bad(400, 'Add a title.');
-        let to = 'all', toName = 'Everyone';
-        if (body.to && String(body.to).trim() && String(body.to).trim().toLowerCase() !== 'all') { const k = nameKey(cleanName(body.to)), u = await readOne('users', k); if (!u) bad(404, 'No student with that name.'); to = k; toName = u.name; }
-        if ((await readAll(NT)).length >= 300) bad(400, 'Too many notifications saved — delete some old ones first.');
-        const n = { id: rid('n'), ts: Date.now(), title, body: text, to, toName }; await kv(['HSET', NT, n.id, JSON.stringify(n)]); return ok({ n });
-      }
-      case 'notifAdminList': { needAdmin(t); return ok({ list: (await readAll(NT)).sort((a, b) => b.ts - a.ts).slice(0, 100) }); }
-      case 'notifDel': { needAdmin(t); await kv(['HDEL', NT, s(body.id, 40)]); return ok({ ok: true }); }
-      case 'notifList': {
-        const p = verify(t); if (!p || p.role !== 'student') return ok({ list: [], unread: 0 });
-        const { key, u } = await needUser(t); const since = u.createdAt || 0;
-        const read = new Set(); const flat = (await kv(['HGETALL', NTR(key)])) || []; for (let i = 0; i < flat.length; i += 2) read.add(flat[i]);
-        const list = (await readAll(NT)).filter((n) => (n.to === 'all' || n.to === key) && n.ts >= since).sort((a, b) => b.ts - a.ts).slice(0, 50).map((n) => ({ id: n.id, ts: n.ts, title: n.title, body: n.body, read: read.has(n.id) }));
-        return ok({ list, unread: list.filter((n) => !n.read).length });
-      }
-      case 'notifRead': {
-        const { key } = await needUser(t); const list = (await readAll(NT)).filter((n) => n.to === 'all' || n.to === key).slice(0, 100);
-        for (const n of list) await kv(['HSET', NTR(key), n.id, '1']); return ok({ ok: true });
-      }
-      /* ===== favourites and who I follow ===== */
-      case 'uxGet': {
-        const p = verify(t); if (!p || p.role !== 'student') return ok({ favs: [], following: [] });
-        const { key } = await needUser(t), d = (await readOne(UX, key)) || {}; return ok({ favs: d.favs || [], following: d.following || [] });
-      }
-      case 'uxSet': {
-        const { key } = await needUser(t);
-        const favs = (Array.isArray(body.favs) ? body.favs : []).slice(0, 150).map((f) => ({ id: s(f.id, 40), t: f.t === 'course' ? 'course' : 'reel', title: s(f.title, 120), by: s(f.by, 40), kind: s(f.kind, 10), img: s(f.img, 200), yt: s(f.yt, 20), tt: s(f.tt, 30), link: s(f.link, 300), vid: s(f.vid, 120), vtype: s(f.vtype, 30), ts: +f.ts || 0 })).filter((f) => f.id);
-        const following = [...new Set((Array.isArray(body.following) ? body.following : []).map((n) => s(n, 40)).filter(Boolean))].slice(0, 300);
-        await kv(['HSET', UX, key, JSON.stringify({ favs, following })]); return ok({ ok: true });
-      }
-      case 'myReels': {
-        const me = await who(t); const mine = (await readAll(K.reels)).filter((r) => r.by === me.key).sort((x, y) => y.ts - x.ts).slice(0, 60);
-        return ok({ reels: mine.map((r) => pubReel(r, me, false)), can: canPost(me) });
-      }
-      /* ===== online quizzes posted by the admin (some give a gift) ===== */
-      case 'qzSave': {
-        needAdmin(t); const old = body.id ? await readOne(QZ, s(body.id, 40)) : null;
-        const qs = (Array.isArray(body.questions) ? body.questions : []).slice(0, 60).map((x) => { const opts = (Array.isArray(x.opts) ? x.opts : []).map((v) => s(v, 160)).filter(Boolean).slice(0, 5); return { q: s(x.q, 400), opts, answer: Math.max(0, Math.min(opts.length - 1, +x.answer || 0)) }; }).filter((x) => x.q && x.opts.length >= 2);
-        const title = s(body.title, 100).trim(); if (!title) bad(400, 'Add a title.'); if (!qs.length) bad(400, 'Add at least one question with an Answer line.');
-        const rec = { id: old ? old.id : rid('z'), title, desc: s(body.desc, 300), gift: s(body.gift, 120).trim(), pass: Math.max(1, Math.min(100, +body.pass || 50)), qs, ts: old ? old.ts : Date.now(), open: body.open !== false };
-        await kv(['HSET', QZ, rec.id, JSON.stringify(rec)]); return ok({ ok: true, id: rec.id });
-      }
-      case 'qzDelete': { needAdmin(t); const id = s(body.id, 40); await kv(['HDEL', QZ, id]); await kv(['DEL', QZR(id)]); return ok({ ok: true }); }
-      case 'qzAdminList': {
-        needAdmin(t); const list = []; for (const q of (await readAll(QZ)).sort((a, b) => b.ts - a.ts)) { const res = await readAll(QZR(q.id)); list.push({ id: q.id, title: q.title, desc: q.desc, gift: q.gift, pass: q.pass, open: q.open !== false, n: q.qs.length, tries: res.length, winners: res.filter((r) => r.passed).sort((a, b) => a.ts - b.ts).map((r) => ({ name: r.name, score: r.score, total: r.total, ts: r.ts })) }); }
-        return ok({ list });
-      }
-      case 'qzList': {
-        const me = await maybeWho(t); const out = [];
-        for (const q of (await readAll(QZ)).filter((x) => x.open !== false).sort((a, b) => b.ts - a.ts)) { const mine = me && !me.isAdmin ? await readOne(QZR(q.id), me.key) : null; out.push({ id: q.id, title: q.title, desc: q.desc, gift: q.gift, pass: q.pass, n: q.qs.length, ts: q.ts, mine: mine ? { score: mine.score, total: mine.total, passed: !!mine.passed } : null }); }
-        return ok({ list: out });
-      }
-      case 'qzGet': {
-        const q = await readOne(QZ, s(body.id, 40)); if (!q || q.open === false) bad(404, 'That quiz is not available.');
-        return ok({ quiz: { id: q.id, title: q.title, desc: q.desc, gift: q.gift, pass: q.pass, qs: q.qs.map((x) => ({ q: x.q, opts: x.opts })) } });
-      }
-      case 'qzSubmit': {
-        const me = await who(t); if (me.isAdmin) bad(400, 'Admins can preview quizzes but not submit them.');
-        const q = await readOne(QZ, s(body.id, 40)); if (!q || q.open === false) bad(404, 'That quiz is not available.');
-        if (await rateCheck('rl:qz:' + me.key, 60, 3600)) bad(429, 'Too many tries. Please wait a while.');
-        const ans = Array.isArray(body.answers) ? body.answers : []; let score = 0; const key = q.qs.map((x, i) => { if (+ans[i] === x.answer) score++; return x.answer; });
-        const total = q.qs.length, passed = Math.round(score / total * 100) >= q.pass, prev = await readOne(QZR(q.id), me.key);
-        if (!prev || score > prev.score || (passed && !prev.passed)) await kv(['HSET', QZR(q.id), me.key, JSON.stringify({ name: me.name, score, total, passed: passed || !!(prev && prev.passed), ts: prev && prev.passed ? prev.ts : Date.now() })]);
-        return ok({ score, total, passed, gift: passed ? q.gift : '', answers: key });
-      }
       case 'reelsList': {
         const me = await maybeWho(t), before = +body.before || Infinity;
-        const all = (await readAll(K.reels)).sort((x, y) => y.ts - x.ts).filter((r) => r.ts < before);
+        try { await sweepReels(); } catch (e) { /* tidying is best-effort */ }
+        const all = (await readAll(K.reels)).filter(alive).sort((x, y) => y.ts - x.ts).filter((r) => r.ts < before);
         const page = all.slice(0, Math.max(1, Math.min(+body.limit || 12, 30)));
         if (body.only) { const one = await readOne(K.reels, s(body.only, 40)); if (one && !page.some((r) => r.id === one.id)) page.unshift(one); }
         const liked = new Set();
@@ -964,6 +909,27 @@ module.exports = function make(C) {
         await kv(['HSET', K.rv(id), String(n), d]); await kv(['EXPIRE', K.rv(id), '7200']);
         return ok({ ok: true });
       }
+      case 'reelsFeed': { // the public feed: the same for everyone, so it can be kept at the edge and opens fast
+        const before = +(body.before || q.before) || Infinity, only = s(body.only || q.only, 40), lim = Math.max(1, Math.min(+(body.limit || q.limit) || 6, 20));
+        const all = (await readAll(K.reels)).filter(alive).sort((x, y) => y.ts - x.ts).filter((r) => r.ts < before), page = all.slice(0, lim);
+        if (only) { const one = await readOne(K.reels, only); if (alive(one) && !page.some((r) => r.id === one.id)) page.unshift(one); }
+        const outR = page.map((r) => pubReel(r, null, false));
+        if (before === Infinity && !only) { // live ads become reels of their own, and vanish when they expire
+          let n = 0; for (const x of await liveAds()) { const pos = Math.min(outR.length, 1 + n * 3); n++; outR.splice(pos, 0, { id: x.id, by: x.biz, byAdmin: false, ad: true, kind: x.img ? 'image' : 'embed', yt: x.yt, tt: x.tt, av: '', link: '', vid: '', vtype: '', caption: 'Sponsored', ts: outR[pos - 1] ? outR[pos - 1].ts : Date.now(), img: x.img, likes: 0, comments: 0, liked: false, mine: false, buy: x.wa, exp: x.exp }); }
+        }
+        return ok({ reels: outR, more: all.length > lim }, 'public, s-maxage=20, stale-while-revalidate=300');
+      }
+      case 'reelsMine': { // what is personal: which reels I liked, which are mine, and whether I may post
+        const me = await maybeWho(t); if (!me) return ok({ liked: [], mine: [], can: false, me: null });
+        const flat = (await kv(['HGETALL', K.rlu(me.key)])) || [], liked = []; for (let i = 0; i < flat.length; i += 2) liked.push(flat[i]);
+        const mine = (await readAll(K.reels)).filter((r) => alive(r) && (me.isAdmin || r.by === me.key)).map((r) => r.id);
+        return ok({ liked, mine, can: canPost(me), me: { name: me.name, admin: me.isAdmin } });
+      }
+      case 'avatar': { // a student's profile picture, as an image
+        const k = nameKey(cleanName(s(q.k || body.k, 60))), av = await kv(['HGET', 'avatars', k]), m = typeof av === 'string' && /^data:(image\/(?:jpeg|png|webp));base64,(.+)$/.exec(av);
+        if (!m) return { raw: true, code: 404, headers: { 'Content-Type': 'text/plain', 'Cache-Control': 'public, max-age=300' }, buf: Buffer.from('none') };
+        const buf = Buffer.from(m[2], 'base64'); return { raw: true, code: 200, headers: { 'Content-Type': m[1], 'Content-Length': String(buf.length), 'Cache-Control': 'public, max-age=3600' }, buf };
+      }
       case 'reelPost': {
         const me = await who(t);
         if (!canPost(me)) bad(403, 'You have not been given permission to post reels. Ask the admin.');
@@ -977,7 +943,7 @@ module.exports = function make(C) {
           if (!/^r[a-z0-9]{8,30}$/.test(id) || !(vn >= 1 && vn <= MAXCH)) bad(400, 'Invalid video.');
           const m = await readOne(K.rv(id), 'meta'), first = await kv(['HGET', K.rv(id), '0']), last = await kv(['HGET', K.rv(id), String(vn - 1)]);
           if (!m || m.by !== me.key || !first || !last) bad(400, 'The video did not finish uploading — please try again.');
-          await kv(['EXPIRE', K.rv(id), '315360000']);
+          await kv(['EXPIRE', K.rv(id), '2592000']);
           vsize = (vn - 1) * CH + Math.floor(String(last).length * 3 / 4) - (String(last).endsWith('==') ? 2 : String(last).endsWith('=') ? 1 : 0);
         } else if (!img) {
           yt = ytId(link);
@@ -988,15 +954,12 @@ module.exports = function make(C) {
         if (await readOne(K.reels, id)) bad(409, 'That reel is already posted.');
         const rec = { id, by: me.key, byName: me.name, admin: me.isAdmin, kind: img ? 'image' : 'video', img: !!img, yt, tt, link: direct, vid: vid ? vn : 0, vsize, vtype, caption, ts: Date.now(), likes: 0, comments: 0 };
         if (img) await putImg('reel_' + id, img);
-        const extra = img && Array.isArray(body.more) ? body.more.filter((x) => typeof x === 'string' && IMG_RE.test(x) && x.length <= 700000).slice(0, 9) : [];
-        for (let i = 0; i < extra.length; i++) await putImg('reel_' + id + '_' + (i + 1), extra[i]);
-        rec.pics = extra.length;
         await kv(['HSET', K.reels, id, JSON.stringify(rec)]);
         return ok({ reel: pubReel(rec, me, false) });
       }
       case 'reelvid': { // streams an uploaded video in slices (what phones and browsers ask for with Range requests)
         const id = s(q.id || body.id, 40); if (!/^r[a-z0-9]{8,30}$/.test(id)) bad(404, 'Not found.');
-        const rec = await readOne(K.reels, id); if (!rec || !rec.vid) bad(404, 'Not found.');
+        const rec = await readOne(K.reels, id); if (!rec || !rec.vid || !alive(rec)) bad(404, 'Not found.');
         let size = rec.vsize;
         if (!size) { const last = await kv(['HGET', K.rv(id), String(rec.vid - 1)]) || ''; size = (rec.vid - 1) * CH + Math.floor(last.length * 3 / 4) - (last.endsWith('==') ? 2 : last.endsWith('=') ? 1 : 0); }
         const rg = /bytes=(\d*)-(\d*)/.exec((req && req.headers && req.headers.range) || '');
@@ -1014,7 +977,7 @@ module.exports = function make(C) {
       case 'reelDelete': {
         const me = await who(t), id = s(body.id, 40), r = await readOne(K.reels, id); if (!r) bad(404, 'That reel is already gone.');
         if (!me.isAdmin && r.by !== me.key) bad(403, 'You can only delete your own reels.');
-        await kv(['HDEL', K.reels, id]); await kv(['HDEL', 'imgs', 'reel_' + id]); for (let i = 1; i <= (r.pics || 0); i++) await kv(['HDEL', 'imgs', 'reel_' + id + '_' + i]); await kv(['DEL', K.rv(id)]); await kv(['DEL', K.rcm(id)]);
+        await kv(['HDEL', K.reels, id]); await kv(['HDEL', 'imgs', 'reel_' + id]); await kv(['DEL', K.rv(id)]); await kv(['DEL', K.rcm(id)]);
         return ok({ ok: true });
       }
       case 'reelLike': {
@@ -1035,7 +998,7 @@ module.exports = function make(C) {
         const r = await readOne(K.reels, id); if (!r) bad(404, 'That reel is gone.');
         if (await rateCheck('rl:cm:' + me.key, 60, 3600)) bad(429, 'You are commenting too fast. Please wait a bit.');
         const c = { id: rid('c'), by: me.key, name: me.name, admin: me.isAdmin, text, ts: Date.now() };
-        await kv(['HSET', K.rcm(id), c.id, JSON.stringify(c)]);
+        await kv(['HSET', K.rcm(id), c.id, JSON.stringify(c)]); await kv(['EXPIRE', K.rcm(id), '2592000']);
         r.comments = (r.comments || 0) + 1; await kv(['HSET', K.reels, id, JSON.stringify(r)]);
         return ok({ comment: { id: c.id, name: c.name, admin: c.admin, text: c.text, ts: c.ts, mine: true }, comments: r.comments });
       }
@@ -1110,6 +1073,57 @@ module.exports = function make(C) {
         const out = await Promise.all(items.map((it) => engine.answerQuestion(it.q, it.opts, 7000)));
         return ok({ answers: out });
       }
+      /* ===== chats, stories, sponsored reels (update 3) ===== */
+      case 'chatUsers': {
+        const me = await who(t), qq = s(body.q, 40).toLowerCase().trim();
+        const us = (await hall('users')).filter((u) => u && u.name && (!qq || u.name.toLowerCase().includes(qq)) && nameKey(u.name) !== me.key).slice(0, 40);
+        const out = us.map((u) => ({ key: nameKey(u.name), name: u.name }));
+        if (!me.isAdmin && (!qq || 'admin'.includes(qq))) out.unshift({ key: '__admin', name: 'Admin' });
+        return ok({ users: out });
+      }
+      case 'chatSend': {
+        const me = await who(t), to = s(body.to, 80), text = s(body.text, 1000).trim();
+        if (!text || !to || to === me.key) bad(400, 'Write a message first.');
+        if (await rateCheck('rl:chat:' + me.key, 120, 600)) bad(429, 'You are sending very fast. Wait a moment.');
+        let toName = 'Admin';
+        if (to !== '__admin') { const raw = await kv(['HGET', 'users', to]); let u = null; try { u = raw ? JSON.parse(raw) : null; } catch (e) { /* ignore */ } if (!u) bad(404, 'That person was not found.'); toName = u.name; }
+        const cid = [me.key, to].sort().join('|'), m = { id: rid('m'), f: me.key, tx: text, ts: Date.now() };
+        await kv(['RPUSH', KC.cm(cid), JSON.stringify(m)]); await kv(['LTRIM', KC.cm(cid), -300, -1]);
+        await kv(['HSET', KC.cvi(me.key), to, JSON.stringify({ k: to, name: toName, last: text.slice(0, 80), ts: m.ts, un: 0, mine: 1 })]);
+        const prev = await readOne(KC.cvi(to), me.key);
+        await kv(['HSET', KC.cvi(to), me.key, JSON.stringify({ k: me.key, name: me.name, last: text.slice(0, 80), ts: m.ts, un: ((prev && prev.un) || 0) + 1, mine: 0 })]);
+        return ok({ m: { id: m.id, mine: true, tx: m.tx, ts: m.ts } });
+      }
+      case 'chatInbox': {
+        const me = await who(t), list = (await readAll(KC.cvi(me.key))).sort((x, y) => y.ts - x.ts).slice(0, 60);
+        return ok({ list, unread: list.reduce((n, c) => n + (c.un || 0), 0) });
+      }
+      case 'chatThread': {
+        const me = await who(t), w = s(body.with, 80); if (!w) bad(400, 'Pick a chat.');
+        const raw = (await kv(['LRANGE', KC.cm([me.key, w].sort().join('|')), 0, -1])) || [];
+        const msgs = raw.map((x) => { try { return JSON.parse(x); } catch (e) { return null; } }).filter(Boolean);
+        const c = await readOne(KC.cvi(me.key), w); if (c && c.un) { c.un = 0; await kv(['HSET', KC.cvi(me.key), w, JSON.stringify(c)]); }
+        return ok({ msgs: msgs.map((m) => ({ id: m.id, mine: m.f === me.key, tx: m.tx, ts: m.ts })) });
+      }
+      case 'storyPost': {
+        const me = await who(t); if (await rateCheck('rl:story:' + me.key, 20, 3600)) bad(429, 'Too many stories. Try again later.');
+        const text = s(body.text, 300).trim(), img = typeof body.img === 'string' && IMG_RE.test(body.img) && body.img.length <= 700000 ? body.img : '';
+        if (!text && !img) bad(400, 'Add a photo or some text.');
+        const id = rid('s'); if (img) await putImg('story_' + id, img);
+        await kv(['HSET', KC.st, id, JSON.stringify({ id, by: me.key, name: me.name, tx: text, img: !!img, ts: Date.now() })]);
+        return ok({ id });
+      }
+      case 'stories': {
+        const me = await maybeWho(t), now = Date.now(), keep = [];
+        for (const r of await readAll(KC.st)) { if (now - r.ts > 86400000) { await kv(['HDEL', KC.st, r.id]); await kv(['HDEL', 'imgs', 'story_' + r.id]); } else keep.push(r); }
+        keep.sort((x, y) => x.ts - y.ts);
+        return ok({ stories: keep.map((r) => ({ id: r.id, by: r.by, name: r.name, tx: r.tx, img: r.img ? '/api?a=img&id=story_' + r.id + '&v=' + r.ts : '', ts: r.ts, mine: !!(me && (me.isAdmin || me.key === r.by)) })), ads: await liveAds() });
+      }
+      case 'storyDel': {
+        const me = await who(t), r = await readOne(KC.st, s(body.id, 40));
+        if (r && (me.isAdmin || r.by === me.key)) { await kv(['HDEL', KC.st, r.id]); await kv(['HDEL', 'imgs', 'story_' + r.id]); }
+        return ok({ ok: true });
+      }
       default: return null;
     }
   }
@@ -1123,7 +1137,7 @@ module.exports = function make(C) {
 return module.exports;
 })();
 
-// Adesua Pa backend — one Vercel serverless function, no dependencies.
+// Study Partner backend — one Vercel serverless function, no dependencies.
 // Storage: Upstash Redis (add it free from Vercel → Storage / Marketplace).
 const crypto = require('crypto');
 
@@ -1152,9 +1166,8 @@ function findRedisEnv() {
   return { url: url ? String(url).replace(/\/+$/, '') : url, token };
 }
 const { url: KV_URL, token: KV_TOKEN } = findRedisEnv();
-// Accepts either spelling of the Vercel variable names (ADMIN_USER/ADMIN_PASS or ADMIN_USERNAME/ADMIN_PASSWORD).
-const ADMIN_USER = String(process.env.ADMIN_USER || process.env.ADMIN_USERNAME || 'Yo Lord!').trim();
-const ADMIN_PASS = String(process.env.ADMIN_PASS || process.env.ADMIN_PASSWORD || '#124#').trim();
+const ADMIN_USER = process.env.ADMIN_USER || 'Yo Lord!';
+const ADMIN_PASS = process.env.ADMIN_PASS || '#124#';
 const SECRET = process.env.AUTH_SECRET || crypto.createHash('sha256').update('sp-secret|' + (KV_TOKEN || 'dev')).digest('hex');
 const REDIS = !!(KV_URL && KV_TOKEN);
 const READY = REDIS || process.env.SP_ALLOW_MEMORY === '1'; // memory mode is for local testing only
@@ -1215,7 +1228,7 @@ const userToken = (key) => sign({ u: key, role: 'student', exp: Date.now() + 30 
 const adminToken = () => sign({ u: '@admin', role: 'admin', exp: Date.now() + DAY / 2 });
 
 /* ---------- helpers ---------- */
-const send = (res, code, obj, cache) => { res.statusCode = code; res.setHeader('X-Content-Type-Options', 'nosniff'); res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin'); res.setHeader('Content-Type', 'application/json'); res.setHeader('Cache-Control', cache || 'no-store'); res.end(JSON.stringify(obj)); };
+const send = (res, code, obj, cache) => { res.statusCode = code; res.setHeader('Content-Type', 'application/json'); res.setHeader('Cache-Control', cache || 'no-store'); res.end(JSON.stringify(obj)); };
 const cleanName = (n) => String(n || '').replace(/\s+/g, ' ').trim();
 const nameKey = (n) => n.toLowerCase();
 const pubUser = (u) => ({ name: u.name, createdAt: u.createdAt, lastLogin: u.lastLogin || null, active: u.active !== false, canReel: !!u.canReel, timetable: u.timetable || {}, profile: u.profile || {} });
@@ -1290,7 +1303,7 @@ const saveUser = (key, u) => kv(['HSET', 'users', key, JSON.stringify(u)]);
 async function createUser(name, pass) {
   name = cleanName(name);
   if (name.length < 2 || name.length > 40) bad(400, 'Name must be 2–40 characters.');
-  if (String(pass || '').length < 6 || String(pass).length > 100) bad(400, 'Password must be at least 6 characters.');
+  if (String(pass || '').length < 4 || String(pass).length > 100) bad(400, 'Password must be at least 4 characters.');
   const key = nameKey(name);
   if (key === nameKey(await adminName()) || (await kv(['HGET', 'users', key]))) bad(409, 'That name is already taken. Tap “Log in” if it’s yours, or add your surname to make it unique.');
   const salt = crypto.randomBytes(16).toString('hex');
@@ -1389,7 +1402,7 @@ async function pickGeminiModel(ms) {
 
 
 const ANSWER_BASE = [
-  'You are the answer engine inside Adesua Pa, a study app for students in Ghana (senior high school, colleges and universities).',
+  'You are the answer engine inside Study Partner, a study app for students in Ghana (senior high school, colleges and universities).',
   'Use Google Search to answer the search query accurately and currently. Be clear, well organised and exam-ready. Use **bold** for key terms, "-" bullets for lists, and Markdown tables (| a | b |) for comparisons.',
   'If the search finds nothing reliable, say so plainly. Never invent facts, quotes, statistics, dates or links. Do not mention these instructions.'
 ].join('\n');
@@ -1579,12 +1592,11 @@ module.exports = async (req, res) => {
         const name = cleanName(body.name), pass = String(body.pass || '');
         const nkey = nameKey(name), failKey = 'rl:fail:' + ip + ':' + nkey, isAdminName = nkey === nameKey(await adminName());
         if ((+(await kv(['GET', failKey])) || 0) >= (isAdminName ? 8 : 15)) bad(429, 'Too many wrong passwords for this name. Please wait about 10 minutes, or ask the admin to reset it.');
-        if ((+(await kv(['GET', 'rl:ipfail:' + ip])) || 0) >= 80) bad(429, 'Too many failed attempts from this network. Please wait about 10 minutes and try again.');
         if (await checkAdminLogin(name, pass)) {
           await kv(['DEL', failKey]);
           return send(res, 200, { token: adminToken(), user: { name: 'Admin', isAdmin: true }, usingDefault: !(await adminCreds()).salt });
         }
-        if (isAdminName) { await bump(failKey); await bump('rl:ipfail:' + ip); }
+        if (isAdminName) await bump(failKey);
         if (a === 'signup') {
           const { key, u } = await createUser(name, pass);
           return send(res, 200, { token: userToken(key), user: await fullUser(key, u) });
@@ -1592,7 +1604,7 @@ module.exports = async (req, res) => {
         const key = nkey, u = await jget('users', key);
         if (!u) bad(404, 'No account found with that name. Check the spelling, or tap “Sign up” to create one.');
         if (u.active === false) bad(403, 'This account has been deactivated. Please contact the admin.');
-        if (!safeEq(hashPw(pass, u.salt), u.hash)) { await bump(failKey); await bump('rl:ipfail:' + ip); bad(401, 'Wrong password. Try again — or ask the admin to reset it.'); }
+        if (!safeEq(hashPw(pass, u.salt), u.hash)) { await bump(failKey); bad(401, 'Wrong password. Try again — or ask the admin to reset it.'); }
         await kv(['DEL', failKey]);
         u.lastLogin = Date.now(); await migrateAvatar(key, u); await saveUser(key, u);
         return send(res, 200, { token: userToken(key), user: await fullUser(key, u) });
@@ -1628,12 +1640,12 @@ module.exports = async (req, res) => {
         if (body.profile !== undefined) {
           const p = body.profile || {}, s = (v, n) => String(v || '').slice(0, n);
           const av = typeof p.avatar === 'string' && IMG_RE.test(p.avatar) && p.avatar.length <= 120000 ? p.avatar : '';
-          u.profile = { school: s(p.school, 80), prog: s(p.prog, 80), level: s(p.level, 30), phone: s(p.phone, 30), bio: s(p.bio, 160), theme: ['auto', 'light', 'dark'].includes(p.theme) ? p.theme : 'auto', avatar: '' };
+          u.profile = { school: s(p.school, 80), prog: s(p.prog, 80), level: s(p.level, 30), phone: s(p.phone, 30), theme: ['auto', 'light', 'dark'].includes(p.theme) ? p.theme : 'auto', avatar: '' };
           if (av) await kv(['HSET', 'avatars', key, av]); else await kv(['HDEL', 'avatars', key]);
         }
         if (body.newPass) {
           if (!safeEq(hashPw(String(body.curPass || ''), u.salt), u.hash)) bad(401, 'Your current password is wrong.');
-          if (String(body.newPass).length < 6) bad(400, 'Password must be at least 6 characters.');
+          if (String(body.newPass).length < 4) bad(400, 'Password must be at least 4 characters.');
           u.salt = crypto.randomBytes(16).toString('hex'); u.hash = hashPw(String(body.newPass), u.salt);
         }
         let oldKey = key;
@@ -1652,15 +1664,11 @@ module.exports = async (req, res) => {
         const s = (v, n) => String(v || '').slice(0, n);
         const kind = ad.kind === 'flyer' ? 'flyer' : 'video';
         const img = kind === 'flyer' && typeof ad.img === 'string' && IMG_RE.test(ad.img) && ad.img.length <= 700000 ? ad.img : '';
-        const rec = { id: 'a' + Date.now() + crypto.randomBytes(3).toString('hex'), biz: s(ad.biz, 80), kind, link: kind === 'video' ? s(ad.link, 500) : '', img: '', hasImg: !!img, wa: s(ad.wa, 200), plan: s(ad.plan, 40), durationMs: planMs(ad.plan), price: Number(ad.price) || 0, ref: s(ad.ref, 80), by: (() => { const vp = verify(body.t); return vp && vp.role === 'student' ? vp.u : ''; })(), status: 'pending', createdAt: Date.now() };
+        const rec = { id: 'a' + Date.now() + crypto.randomBytes(3).toString('hex'), biz: s(ad.biz, 80), kind, link: kind === 'video' ? s(ad.link, 500) : '', img: '', hasImg: !!img, wa: s(ad.wa, 200), plan: s(ad.plan, 40), durationMs: planMs(ad.plan), price: Number(ad.price) || 0, ref: s(ad.ref, 80), status: 'pending', createdAt: Date.now() };
         if (!rec.biz || (kind === 'video' && !rec.link) || (kind === 'flyer' && !img)) bad(400, 'Please add the business name and either a video link or a flyer image.');
         if (img) await putImg('ad_' + rec.id, img);
         await kv(['HSET', 'ads', rec.id, JSON.stringify(rec)]);
         return send(res, 200, { ok: true });
-      }
-      case 'myAds': {
-        const { key } = await needUser(t); const mine = (await sweepAds(await hall('ads'))).filter((x) => x.by === key).sort((x, y) => y.createdAt - x.createdAt).slice(0, 50);
-        return send(res, 200, { ads: mine.map((x) => ({ id: x.id, biz: x.biz, kind: x.kind || 'video', status: x.status, plan: x.plan, createdAt: x.createdAt, expiresAt: x.expiresAt || 0, img: adImgUrl(x) })) });
       }
       /* ---- admin only ---- */
       case 'users': { needAdmin(t); return send(res, 200, { users: (await hall('users')).map(listUser) }); }
