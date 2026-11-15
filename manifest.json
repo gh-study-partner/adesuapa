@@ -31,5 +31,11 @@
       "type": "image/png",
       "purpose": "maskable"
     }
-  ]
+  ],
+  "lang": "en",
+  "dir": "ltr",
+  "display_override": [
+    "standalone"
+  ],
+  "prefer_related_applications": false
 }

@@ -1,6 +1,6 @@
 /* Adesua Pa service worker: makes the app installable and lets it open when the network is slow or off.
    It NEVER touches /api (accounts, quizzes, payments always go straight to the server) or other sites. */
-const V = 'adesuapa-v4';
+const V = 'adesuapa-v5';
 const SHELL = ['/', '/manifest.json', '/icons/icon-192.png', '/icons/icon-512.png'];
 
 self.addEventListener('install', (e) => {
@@ -15,7 +15,7 @@ self.addEventListener('fetch', (e) => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;       // CDN scripts, Paystack, YouTube… handled by the browser
   if (url.pathname.startsWith('/api')) return;            // live data is never cached
-  if (url.pathname === '/sw.js') return;
+  if (url.pathname === '/sw.js' || url.pathname.startsWith('/app/') || url.pathname.startsWith('/.well-known/')) return;
   if (req.mode === 'navigate') {                          // always try the network first so students get the newest version
     e.respondWith(
       fetch(req).then((res) => {
